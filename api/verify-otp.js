@@ -19,6 +19,15 @@ function signOtp(email, code, expiry) {
     .digest('hex');
 }
 
+// Issue a short-lived session token after successful OTP verification.
+// Used by /api/bookings to ensure only verified guests can create bookings.
+function signSession(email, sessionExpiry) {
+  return crypto
+    .createHmac('sha256', OTP_SECRET)
+    .update(`session|${email.toLowerCase()}|${sessionExpiry}`)
+    .digest('hex');
+}
+
 function timingSafeEq(a, b) {
   const ab = Buffer.from(String(a), 'utf8');
   const bb = Buffer.from(String(b), 'utf8');
@@ -67,7 +76,10 @@ module.exports = async (req, res) => {
 
     // Success — invalidate token by maxing out attempts so it can't be reused.
     rec.count = MAX_ATTEMPTS;
-    return res.status(200).json({ valid: true });
+    // Issue a 30-minute session so the guest can submit their booking.
+    const sessionExpiry = Date.now() + 30 * 60 * 1000;
+    const sessionToken  = signSession(email, sessionExpiry);
+    return res.status(200).json({ valid: true, sessionToken, sessionExpiry });
   } catch (err) {
     return res.status(500).json({ valid: false, error: err.message });
   }

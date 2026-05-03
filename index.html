@@ -974,7 +974,7 @@
           <button class="btn btn-outline btn-full" onclick="showScreen('screen-welcome')">← Back</button>
         </div>
         <p style="text-align:center;font-size:0.68rem;color:var(--text-muted);margin-top:16px;">
-          Default: <code style="color:var(--gold-light)">Admin</code> / <code style="color:var(--gold-light)">password</code>
+          Credentials are set on the server (env vars <code style="color:var(--gold-light)">ADMIN_USER</code> / <code style="color:var(--gold-light)">ADMIN_PASSWORD</code>)
         </p>
       </div>
     </div>
@@ -991,6 +991,24 @@
   </div>
   <div class="container wide">
     <div class="fade-in" style="margin-top:40px;">
+      <p class="section-title">Reservations</p>
+      <p class="section-subtitle">
+        Live Bookings <span id="reservations-meta" style="color:var(--gold-light);margin-left:8px;"></span>
+      </p>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn btn-outline" style="padding:8px 18px;font-size:0.7rem;" onclick="loadReservations()">Refresh ↻</button>
+      </div>
+      <div class="card" style="padding:0;overflow:auto;margin-bottom:48px;">
+        <table class="data-table" id="reservationsTable">
+          <thead>
+            <tr>
+              <th>Ref</th><th>Guest</th><th>Dates</th><th>Nights</th><th>Room</th><th>Total</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reservations-body"></tbody>
+        </table>
+      </div>
+
       <p class="section-title">Staff Directory</p>
       <p class="section-subtitle">Personnel & Compensation</p>
       <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
@@ -1086,8 +1104,18 @@
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Number of Nights</label>
-            <input class="form-input" id="g-nights" type="number" min="1" value="1">
+            <label class="form-label">Stay Length</label>
+            <input class="form-input" id="g-nights-display" type="text" value="—" readonly style="opacity:0.7;cursor:not-allowed;">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Check-In Date</label>
+            <input class="form-input" id="g-checkin" type="date">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Check-Out Date</label>
+            <input class="form-input" id="g-checkout" type="date">
           </div>
         </div>
         <div class="btn-group">
@@ -1341,8 +1369,9 @@
         </div>
       </div>
 
+      <div class="alert alert-error" id="confirm-error" style="margin-top:24px;"></div>
       <div class="btn-group" style="justify-content:center;margin-top:32px;">
-        <button class="btn btn-primary" onclick="confirmBooking()"> Confirm Booking</button>
+        <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()"> Confirm Booking</button>
         <button class="btn btn-outline" onclick="showScreen('screen-services')">← Revise</button>
       </div>
     </div>
@@ -1442,11 +1471,18 @@
 // STATE
 // ══════════════════════════════════════════════════════════════════
 const state = {
-  guest: { name:'', email:'', nid:'', phone:'', persons:1, nights:1 },
+  guest: { name:'', email:'', nid:'', phone:'', persons:1, nights:1, checkin:'', checkout:'' },
   room: { type: 0, view: 0 },
   services: { restaurant:0, pool:false, gym:false, trip:0, party:false, pet:false },
-  rating: 0
+  rating: 0,
+  // Server-issued session token from /api/verify-otp (used to authorize POST /api/bookings)
+  session: { token:'', expiry:0 },
+  // Server-assigned ref code, set after POST /api/bookings succeeds
+  bookingRef: ''
 };
+// Admin session (set after /api/admin-login succeeds)
+let adminToken  = '';
+let adminExpiry = 0;
 
 const STAFF = [
   { name:'ALI',    dept:'Housekeeping', shift:'Morning', salary:5000,  rate:7.9 },
@@ -1508,24 +1544,87 @@ function updateNav(id) {
 // ══════════════════════════════════════════════════════════════════
 // LOGIN
 // ══════════════════════════════════════════════════════════════════
-function doLogin() {
+async function doLogin() {
   const u = document.getElementById('admin-user').value.trim();
   const p = document.getElementById('admin-pass').value;
   const err = document.getElementById('login-error');
-  if(u === 'Admin' && p === 'password') {
-    err.classList.remove('show');
+  err.classList.remove('show');
+
+  try {
+    const r = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: u, password: p })
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok || !body.ok) {
+      err.textContent = body.error || 'Invalid credentials. Please try again.';
+      err.classList.add('show');
+      document.getElementById('admin-pass').value = '';
+      return;
+    }
+    adminToken  = body.adminToken;
+    adminExpiry = body.adminExpiry;
     buildStaffTable('all');
+    loadReservations();
     showScreen('screen-admin');
-  } else {
-    err.textContent = 'Invalid credentials. Please try again.';
+  } catch (e) {
+    err.textContent = 'Could not reach server. Please try again.';
     err.classList.add('show');
-    document.getElementById('admin-pass').value = '';
   }
 }
 function doLogout() {
+  adminToken = '';
+  adminExpiry = 0;
   document.getElementById('admin-user').value='';
   document.getElementById('admin-pass').value='';
   showScreen('screen-welcome');
+}
+
+// ── Reservations (admin) ───────────────────────────────────────
+async function loadReservations() {
+  const wrap = document.getElementById('reservations-body');
+  const meta = document.getElementById('reservations-meta');
+  if(!wrap) return;
+  wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reservations…</td></tr>`;
+  if(meta) meta.textContent = '';
+  try {
+    const r = await fetch('/api/bookings', {
+      headers: {
+        'X-Admin-Token':  adminToken,
+        'X-Admin-Expiry': String(adminExpiry)
+      }
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:24px;">${body.error || 'Failed to load reservations'}</td></tr>`;
+      return;
+    }
+    const list = body.bookings || [];
+    if(meta) meta.textContent = list.length ? `${list.length} reservation${list.length===1?'':'s'}` : '';
+    if(!list.length) {
+      wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No reservations yet.</td></tr>`;
+      return;
+    }
+    const fmtRoom = b => {
+      const t = ['','Double Room','Suite'][b.room?.type] || '—';
+      const v = ['','Pool & Garden','Roof & Garden'][b.room?.view] || '—';
+      return `${t} <span style="color:var(--text-muted);">·</span> ${v}`;
+    };
+    wrap.innerHTML = list.map(b => `
+      <tr class="staff-row fade-in">
+        <td style="color:var(--gold-light);font-weight:500;">${b.ref}</td>
+        <td>${b.guest?.name || '—'}<br><span style="font-size:0.7rem;color:var(--text-muted);">${b.guest?.email || ''}</span></td>
+        <td>${b.checkin || '—'}<br><span style="font-size:0.7rem;color:var(--text-muted);">→ ${b.checkout || '—'}</span></td>
+        <td>${b.nights || '—'}</td>
+        <td>${fmtRoom(b)}</td>
+        <td style="color:var(--gold-light);font-weight:500;">$${b.totals?.grand ?? 0}</td>
+        <td><span class="badge badge-gold">${b.status || 'confirmed'}</span></td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:24px;">Could not reach server.</td></tr>`;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -1574,15 +1673,26 @@ function lookupSalary() {
 // ══════════════════════════════════════════════════════════════════
 function nextStep(from, to) {
   if(from === 'register') {
-    const name  = document.getElementById('g-name').value.trim();
-    const email = document.getElementById('g-email').value.trim();
-    const nid   = document.getElementById('g-nid').value.trim();
-    const phone = document.getElementById('g-phone').value.trim();
-    const nights = parseInt(document.getElementById('g-nights').value)||1;
+    const name     = document.getElementById('g-name').value.trim();
+    const email    = document.getElementById('g-email').value.trim();
+    const nid      = document.getElementById('g-nid').value.trim();
+    const phone    = document.getElementById('g-phone').value.trim();
+    const checkin  = document.getElementById('g-checkin').value;
+    const checkout = document.getElementById('g-checkout').value;
     if(!name||!nid||!phone) { alert('Please fill in all required fields.'); return; }
     if(!email) { alert('Email address is required to verify your identity.'); return; }
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
-    state.guest = { name, email, nid, phone, persons: parseInt(document.getElementById('g-persons').value)||1, nights: Math.max(1,nights) };
+    if(!checkin || !checkout) { alert('Please select your check-in and check-out dates.'); return; }
+    const nights = Math.round((Date.parse(checkout) - Date.parse(checkin)) / 86400000);
+    if(nights < 1)  { alert('Check-out must be at least one day after check-in.'); return; }
+    if(nights > 30) { alert('Online bookings are limited to 30 nights. Please contact us for longer stays.'); return; }
+    const today = new Date(); today.setHours(0,0,0,0);
+    if(Date.parse(checkin) < today.getTime()) { alert('Check-in date cannot be in the past.'); return; }
+    state.guest = {
+      name, email, nid, phone,
+      persons: parseInt(document.getElementById('g-persons').value)||1,
+      nights, checkin, checkout
+    };
     showScreen('screen-room');
     return;
   }
@@ -1698,6 +1808,8 @@ async function verifyOTP() {
     errEl.classList.remove('show');
     otpToken = '';
     otpExpiry = 0;
+    // Save short-lived session granted by the server, used to authorize POST /api/bookings.
+    state.session = { token: body.sessionToken || '', expiry: body.sessionExpiry || 0 };
     buildConfirmPage();
     showScreen('screen-confirm');
   } catch (e) {
@@ -1707,6 +1819,36 @@ async function verifyOTP() {
     otpVerifying = false;
   }
 }
+
+// Initialize date inputs and the live nights display
+document.addEventListener('DOMContentLoaded', () => {
+  const ci  = document.getElementById('g-checkin');
+  const co  = document.getElementById('g-checkout');
+  const dsp = document.getElementById('g-nights-display');
+  if(ci && co && dsp) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    ci.min = todayStr;
+    co.min = todayStr;
+    function refreshNights() {
+      if(!ci.value || !co.value) { dsp.value = '—'; return; }
+      const n = Math.round((Date.parse(co.value) - Date.parse(ci.value)) / 86400000);
+      if(n < 1) { dsp.value = 'Invalid'; return; }
+      dsp.value = `${n} night${n === 1 ? '' : 's'}`;
+    }
+    ci.addEventListener('change', () => {
+      // Keep checkout >= checkin + 1
+      if(ci.value) {
+        const next = new Date(ci.value); next.setDate(next.getDate() + 1);
+        co.min = next.toISOString().split('T')[0];
+        if(co.value && Date.parse(co.value) <= Date.parse(ci.value)) {
+          co.value = co.min;
+        }
+      }
+      refreshNights();
+    });
+    co.addEventListener('change', refreshNights);
+  }
+});
 
 // OTP digit auto-advance
 document.addEventListener('DOMContentLoaded', () => {
@@ -1949,6 +2091,8 @@ function buildConfirmPage() {
     <div class="summary-item"><span class="summary-key">National ID</span><span class="summary-val">${g.nid}</span></div>
     <div class="summary-item"><span class="summary-key">Phone</span><span class="summary-val">${g.phone}</span></div>
     <div class="summary-item"><span class="summary-key">Guests</span><span class="summary-val">${g.persons}</span></div>
+    <div class="summary-item"><span class="summary-key">Check-In</span><span class="summary-val">${g.checkin || '—'}</span></div>
+    <div class="summary-item"><span class="summary-key">Check-Out</span><span class="summary-val">${g.checkout || '—'}</span></div>
     <div class="summary-item"><span class="summary-key">Nights</span><span class="summary-val">${nights}</span></div>
     <div class="summary-item"><span class="summary-key">Room Type</span><span class="summary-val">${rType}</span></div>
     <div class="summary-item"><span class="summary-key">Room View</span><span class="summary-val">${rView}</span></div>
@@ -1961,11 +2105,66 @@ function buildConfirmPage() {
   document.getElementById('grand-total').textContent = `$${grand}`;
 }
 
-function confirmBooking() {
-  const ref = 'HLT-' + Math.random().toString(36).substr(2,6).toUpperCase();
-  document.getElementById('success-code').textContent = ref;
-  showScreen('screen-success');
-  sendConfirmationEmail(ref);
+async function confirmBooking() {
+  const btn = document.getElementById('confirm-btn');
+  const errEl = document.getElementById('confirm-error');
+  if(errEl) errEl.classList.remove('show');
+
+  if(!state.session.token || Date.now() > state.session.expiry) {
+    if(errEl) {
+      errEl.textContent = 'Your verification session has expired. Please re-verify your email.';
+      errEl.classList.add('show');
+    } else {
+      alert('Verification session expired. Please re-verify your email.');
+    }
+    return;
+  }
+
+  const g = state.guest;
+  const nights = g.nights || 1;
+  const roomCost = (ROOM_PRICES.type[state.room.type]||0)*nights
+                 + (ROOM_PRICES.setup[state.room.type]||0)
+                 + (ROOM_PRICES.view[state.room.view]||0);
+  const svcCost  = Object.values(servicesCost).reduce((a,b)=>a+b,0);
+  const grand    = roomCost + svcCost;
+
+  if(btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Saving reservation…'; }
+
+  try {
+    const r = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionToken:  state.session.token,
+        sessionExpiry: state.session.expiry,
+        guest: {
+          name: g.name, email: g.email, nid: g.nid, phone: g.phone, persons: g.persons
+        },
+        room:     state.room,
+        services: { ...servicesCost },
+        checkin:  g.checkin,
+        checkout: g.checkout,
+        totals:   { room: roomCost, services: svcCost, grand }
+      })
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok || !body.success) {
+      const msg = body.error || 'Could not save your reservation. Please try again.';
+      if(errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
+      else alert(msg);
+      return;
+    }
+    state.bookingRef = body.ref;
+    document.getElementById('success-code').textContent = body.ref;
+    showScreen('screen-success');
+    sendConfirmationEmail(body.ref);
+  } catch (e) {
+    const msg = 'Could not reach the booking service. Please try again.';
+    if(errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
+    else alert(msg);
+  } finally {
+    if(btn) { btn.disabled = false; btn.textContent = btn.dataset.label || 'Confirm Booking'; }
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -2085,8 +2284,10 @@ async function submitFeedback() {
 // RESET
 // ══════════════════════════════════════════════════════════════════
 function resetAndHome() {
-  state.guest = { name:'', email:'', nid:'', phone:'', persons:1, nights:1 };
+  state.guest = { name:'', email:'', nid:'', phone:'', persons:1, nights:1, checkin:'', checkout:'' };
   state.room  = { type:0, view:0 };
+  state.session = { token:'', expiry:0 };
+  state.bookingRef = '';
   Object.keys(servicesCost).forEach(k => delete servicesCost[k]);
   state.rating = 0;
   showScreen('screen-welcome');
