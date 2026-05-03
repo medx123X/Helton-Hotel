@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booking Confirmed — Helton Hotel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0D0D0D;
+    color: #E8E0D0;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 10%, rgba(201,168,76,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 90%, rgba(201,168,76,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .card {
+    position: relative;
+    max-width: 520px;
+    width: 100%;
+    background: #1E1B16;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 2px;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .card-top {
+    background: #141414;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    padding: 40px 40px 32px;
+    text-align: center;
+  }
+  .checkmark {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(39,174,96,0.12);
+    border: 1px solid rgba(39,174,96,0.4);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.8rem;
+    animation: pop 0.4s 0.3s ease both;
+  }
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  .hotel-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: #C9A84C;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    color: #8A7F6E;
+    text-transform: uppercase;
+  }
+  .card-body { padding: 32px 40px; }
+  .ref-box {
+    background: rgba(201,168,76,0.07);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 2px;
+    padding: 16px 20px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .ref-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: #8A7F6E;
+    margin-bottom: 6px;
+  }
+  .ref-code {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    color: #E8C97A;
+    letter-spacing: 0.1em;
+  }
+  .message {
+    font-size: 0.85rem;
+    color: #8A7F6E;
+    line-height: 1.8;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .message strong { color: #E8E0D0; }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .info-item {
+    background: #2A2620;
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .info-item .icon { font-size: 1.3rem; display: block; margin-bottom: 6px; }
+  .info-item .ilabel {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #8A7F6E;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .info-item .ivalue {
+    font-size: 0.8rem;
+    color: #E8E0D0;
+  }
+  .divider {
+    height: 1px;
+    background: rgba(201,168,76,0.15);
+    margin: 0 0 24px;
+  }
+  .card-footer {
+    background: rgba(201,168,76,0.05);
+    border-top: 1px solid rgba(201,168,76,0.15);
+    padding: 20px 40px;
+    text-align: center;
+  }
+  .footer-text {
+    font-size: 0.7rem;
+    color: #4A4540;
+    line-height: 1.7;
+  }
+  .gold-line {
+    width: 50px; height: 1px;
+    background: linear-gradient(90deg, transparent, #C9A84C, transparent);
+    margin: 0 auto 16px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card-top">
+    <div class="checkmark">✓</div>
+    <p class="hotel-name">Helton Hotel</p>
+    <p class="subtitle">Booking Confirmed</p>
+  </div>
+
+  <div class="card-body">
+    <div class="ref-box">
+      <p class="ref-label">Your Reservation Reference</p>
+      <p class="ref-code" id="ref-display">—</p>
+    </div>
+
+    <p class="message" id="guest-message">
+      Your reservation at <strong>Helton Hotel</strong> has been confirmed.<br>
+      We look forward to welcoming you and ensuring an unforgettable stay.
+    </p>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="icon">🛎</span>
+        <span class="ilabel">Check-In</span>
+        <span class="ivalue">From 2:00 PM</span>
+      </div>
+      <div class="info-item">
+        <span class="icon">🌅</span>
+        <span class="ilabel">Check-Out</span>
+        <span class="ivalue">By 12:00 PM</span>
+      </div>
+      <div class="info-item">
+        <span class="icon">📋</span>
+        <span class="ilabel">At Arrival</span>
+        <span class="ivalue">Show reference code</span>
+      </div>
+      <div class="info-item">
+        <span class="icon">📞</span>
+        <span class="ilabel">Need Help?</span>
+        <span class="ivalue">Contact reception</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <p style="text-align:center;font-size:0.72rem;color:#8A7F6E;line-height:1.8;">
+      A confirmation email has been sent to your inbox.<br>
+      Please present your reference code at the front desk upon arrival.
+    </p>
+  </div>
+
+  <div class="card-footer">
+    <div class="gold-line"></div>
+    <p class="footer-text">
+      ★ ★ ★ ★ ★<br>
+      Helton Hotel — One of the finest hotels in the Middle East
+    </p>
+  </div>
+</div>
+
+<script>
+  // Read ref and name from URL params e.g. confirm.html?ref=HLT-ABC123&name=John
+  const params = new URLSearchParams(window.location.search);
+  const ref  = params.get('ref')  || 'HLT-XXXXXX';
+  const name = params.get('name') || '';
+
+  document.getElementById('ref-display').textContent = ref;
+  if(name) {
+    document.getElementById('guest-message').innerHTML =
+      `Dear <strong style="color:#E8C97A;">${decodeURIComponent(name)}</strong>, your reservation at <strong>Helton Hotel</strong> has been confirmed.<br>We look forward to welcoming you and ensuring an unforgettable stay.`;
+  }
+</script>
+</body>
+</html>
