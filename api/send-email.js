@@ -1,9 +1,25 @@
-const https = require('https');
+const https  = require('https');
+const crypto = require('crypto');
 
 // ── CONFIG ──────────────────────────────────────────────────────
-const BREVO_KEY   = process.env.BREVO_KEY   || 'A0cUqEaYQHdy3jTp';
+const BREVO_KEY   = process.env.BREVO_KEY   || '';
 const HOTEL_EMAIL = process.env.HOTEL_EMAIL || 'noreply.heltonhotel@gmail.com';
 const HOTEL_NAME  = 'Helton Hotel';
+// Used to sign OTP tokens. If unset, derived from BREVO_KEY so old tokens
+// invalidate when the API key rotates. NEVER expose this to the client.
+const OTP_SECRET  = process.env.OTP_SECRET || ('helton-otp-' + BREVO_KEY);
+
+// ── OTP HELPERS (server-side, stateless) ─────────────────────────
+function generateOtpCode() {
+  // Cryptographically random 6-digit code
+  return (crypto.randomInt(0, 1000000)).toString().padStart(6, '0');
+}
+function signOtp(email, code, expiry) {
+  return crypto
+    .createHmac('sha256', OTP_SECRET)
+    .update(`${email.toLowerCase()}|${code}|${expiry}`)
+    .digest('hex');
+}
 
 // ── HELPER: call Brevo API ───────────────────────────────────────
 function sendBrevoEmail(payload) {
@@ -55,7 +71,15 @@ module.exports = async (req, res) => {
 
     // ── OTP EMAIL ────────────────────────────────────────────────
     if (type === 'otp') {
-      const { to_email, guest_name, otp_code } = data;
+      const { to_email, guest_name } = data;
+      if (!to_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to_email)) {
+        return res.status(400).json({ error: 'Invalid email' });
+      }
+      // Generate code + signed token entirely on the server.
+      const otp_code = generateOtpCode();
+      const expiry   = Date.now() + 10 * 60 * 1000; // 10 minutes
+      const token    = signOtp(to_email, otp_code, expiry);
+
       await sendBrevoEmail({
         sender: { name: HOTEL_NAME, email: HOTEL_EMAIL },
         to: [{ email: to_email, name: guest_name }],
@@ -75,7 +99,8 @@ module.exports = async (req, res) => {
 <p style="margin:0;font-size:11px;color:#4A4540;">If you did not request this, please ignore this email.</p>
 </td></tr></table></td></tr></table></body></html>`
       });
-      return res.status(200).json({ success: true });
+      // Token + expiry are public (HMAC-protected); the code itself is secret.
+      return res.status(200).json({ success: true, token, expiry });
     }
 
     // ── BOOKING CONFIRMATION EMAIL ───────────────────────────────

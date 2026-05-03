@@ -1601,51 +1601,52 @@ function nextStep(from, to) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// OTP SYSTEM
+// OTP SYSTEM (server-side: code is generated and verified on the server;
+// the client only ever holds an HMAC token, never the real code)
 // ══════════════════════════════════════════════════════════════════
-let currentOTP = '';
-let otpExpiry  = 0;
-
-function generateOTP() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
+let otpToken  = '';
+let otpExpiry = 0;
+let otpVerifying = false;
 
 function sendOTP() {
-  currentOTP = generateOTP();
-  otpExpiry  = Date.now() + 10 * 60 * 1000; // 10 minutes
-
-  // Show OTP screen
+  // Reset UI
   document.getElementById('otp-email-display').textContent = state.guest.email;
   document.getElementById('otp-error').classList.remove('show');
   document.getElementById('otp-sending').style.display = 'block';
   [0,1,2,3,4,5].forEach(i => { document.getElementById('otp'+i).value = ''; });
   showScreen('screen-otp');
 
-  // Send via Netlify function (skipped when running locally)
-  if(window.location.protocol !== 'file:') {
-    fetch('/api/send-email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'otp',
-        to_email:   state.guest.email,
-        guest_name: state.guest.name,
-        otp_code:   currentOTP
-      })
-    }).then(() => {
-      document.getElementById('otp-sending').style.display = 'none';
-      document.getElementById('otp0').focus();
-    }).catch(() => {
-      document.getElementById('otp-sending').style.display = 'none';
-      document.getElementById('otp-error').textContent = 'Failed to send code. Please check your email and try again.';
-      document.getElementById('otp-error').classList.add('show');
-    });
-  } else {
-    // Local testing — skip email, just show the OTP in console
+  // Local file:// preview — backend isn't reachable, just inform the user.
+  if(window.location.protocol === 'file:') {
+    document.getElementById('otp-sending').style.display = 'none';
+    document.getElementById('otp-error').textContent =
+      'OTP only works on the deployed site (Vercel), not when opening the file directly.';
+    document.getElementById('otp-error').classList.add('show');
+    return;
+  }
+
+  fetch('/api/send-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'otp',
+      to_email:   state.guest.email,
+      guest_name: state.guest.name
+    })
+  })
+  .then(async r => {
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok || !body.success) throw new Error(body.error || 'Failed');
+    otpToken  = body.token;
+    otpExpiry = body.expiry;
     document.getElementById('otp-sending').style.display = 'none';
     document.getElementById('otp0').focus();
-    console.log('LOCAL TEST — OTP code:', currentOTP);
-  }
+  })
+  .catch(() => {
+    document.getElementById('otp-sending').style.display = 'none';
+    document.getElementById('otp-error').textContent = 'Failed to send code. Please check your email and try again.';
+    document.getElementById('otp-error').classList.add('show');
+  });
 }
 
 function resendOTP() {
@@ -1657,7 +1658,8 @@ function resendOTP() {
   setTimeout(() => { msg.textContent = ''; }, 5000);
 }
 
-function verifyOTP() {
+async function verifyOTP() {
+  if (otpVerifying) return;
   const entered = [0,1,2,3,4,5].map(i => document.getElementById('otp'+i).value).join('');
   const errEl   = document.getElementById('otp-error');
 
@@ -1666,24 +1668,44 @@ function verifyOTP() {
     errEl.classList.add('show');
     return;
   }
-  if(Date.now() > otpExpiry) {
+  if(!otpToken || Date.now() > otpExpiry) {
     errEl.textContent = 'This code has expired. Please request a new one.';
     errEl.classList.add('show');
     return;
   }
-  if(entered !== currentOTP) {
-    errEl.textContent = 'Incorrect code. Please try again.';
-    errEl.classList.add('show');
-    [0,1,2,3,4,5].forEach(i => { document.getElementById('otp'+i).value = ''; });
-    document.getElementById('otp0').focus();
-    return;
-  }
 
-  //  Verified — proceed to booking confirmation
-  errEl.classList.remove('show');
-  currentOTP = ''; // invalidate used code
-  buildConfirmPage();
-  showScreen('screen-confirm');
+  otpVerifying = true;
+  try {
+    const r = await fetch('/api/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email:  state.guest.email,
+        code:   entered,
+        token:  otpToken,
+        expiry: otpExpiry
+      })
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok || !body.valid) {
+      errEl.textContent = body.error || 'Incorrect code. Please try again.';
+      errEl.classList.add('show');
+      [0,1,2,3,4,5].forEach(i => { document.getElementById('otp'+i).value = ''; });
+      document.getElementById('otp0').focus();
+      return;
+    }
+    // Verified — token is now single-use on the server, clear it locally too.
+    errEl.classList.remove('show');
+    otpToken = '';
+    otpExpiry = 0;
+    buildConfirmPage();
+    showScreen('screen-confirm');
+  } catch (e) {
+    errEl.textContent = 'Could not reach server. Please try again.';
+    errEl.classList.add('show');
+  } finally {
+    otpVerifying = false;
+  }
 }
 
 // OTP digit auto-advance
