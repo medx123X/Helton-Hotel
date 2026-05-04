@@ -105,7 +105,16 @@ module.exports = async (req, res) => {
 
     // ── BOOKING CONFIRMATION EMAIL ───────────────────────────────
     if (type === 'booking') {
-      const { to_email, guest_name, ref_code, room_type, room_view, nights, grand_total, services_list } = data;
+      const { to_email, guest_name, ref_code, room_type, room_view, nights, grand_total, services_list, cancel_url, checkin, checkout } = data;
+      const cancelBlock = cancel_url ? `
+<tr><td style="background:#141414;border:1px solid rgba(201,168,76,0.3);border-top:none;padding:24px 40px;text-align:center;">
+<p style="margin:0 0 12px;font-size:10px;letter-spacing:3px;color:#8A7F6E;text-transform:uppercase;">Need to make a change?</p>
+<a href="${cancel_url}" style="display:inline-block;padding:12px 28px;background:transparent;border:1px solid rgba(192,57,43,0.5);color:#E74C3C;font-family:Helvetica,Arial,sans-serif;font-size:11px;letter-spacing:0.25em;text-transform:uppercase;text-decoration:none;border-radius:2px;">Manage / Cancel Reservation</a>
+<p style="margin:14px 0 0;font-size:10px;color:#4A4540;line-height:1.6;">This secure link is unique to your reservation and works for 12 months.</p>
+</td></tr>` : '';
+      const datesBlock = (checkin && checkout) ? `
+<tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Check-In</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${checkin}</td></tr>
+<tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Check-Out</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${checkout}</td></tr>` : '';
       await sendBrevoEmail({
         sender: { name: HOTEL_NAME, email: HOTEL_EMAIL },
         to: [{ email: to_email, name: guest_name }],
@@ -130,7 +139,7 @@ module.exports = async (req, res) => {
 <table width="100%" cellpadding="0" cellspacing="0">
 <tr><td colspan="2" style="padding-bottom:14px;"><p style="margin:0;font-size:10px;letter-spacing:3px;color:#C9A84C;text-transform:uppercase;border-bottom:1px solid rgba(201,168,76,0.2);padding-bottom:10px;">Booking Details</p></td></tr>
 <tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;width:50%;">Room Type</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;">${room_type}</td></tr>
-<tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Room View</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${room_view}</td></tr>
+<tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Room View</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${room_view}</td></tr>${datesBlock}
 <tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Nights</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${nights}</td></tr>
 <tr><td style="padding:8px 0;font-size:12px;color:#8A7F6E;text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.04);">Services</td><td style="padding:8px 0;font-size:13px;color:#E8E0D0;text-align:right;border-top:1px solid rgba(255,255,255,0.04);">${services_list}</td></tr>
 </table></td></tr>
@@ -142,7 +151,7 @@ module.exports = async (req, res) => {
 <tr><td style="background:#141414;border:1px solid rgba(201,168,76,0.3);border-top:none;padding:24px 40px;">
 <p style="margin:0 0 8px;font-size:10px;letter-spacing:3px;color:#C9A84C;text-transform:uppercase;">Check-In Information</p>
 <p style="margin:0;font-size:13px;color:#8A7F6E;line-height:1.8;">Please present your reservation reference <strong style="color:#E8C97A;">${ref_code}</strong> at the front desk. Check-in from <strong style="color:#E8E0D0;">2:00 PM</strong>, check-out by <strong style="color:#E8E0D0;">12:00 PM</strong>.</p>
-</td></tr>
+</td></tr>${cancelBlock}
 <tr><td align="center" style="background:#0D0D0D;border:1px solid rgba(201,168,76,0.15);border-top:none;padding:28px 40px;">
 <p style="margin:0 0 6px;font-size:18px;font-weight:300;letter-spacing:4px;color:#C9A84C;text-transform:uppercase;">Helton Hotel</p>
 <p style="margin:0;font-size:11px;color:#4A4540;">Where every detail is a luxury</p>

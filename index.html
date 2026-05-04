@@ -2309,7 +2309,7 @@ async function confirmBooking() {
     state.bookingRef = body.ref;
     document.getElementById('success-code').textContent = body.ref;
     showScreen('screen-success');
-    sendConfirmationEmail(body.ref);
+    sendConfirmationEmail(body.ref, body.cancelUrl);
   } catch (e) {
     const msg = 'Could not reach the booking service. Please try again.';
     if(errEl) { errEl.textContent = msg; errEl.classList.add('show'); }
@@ -2323,7 +2323,7 @@ async function confirmBooking() {
 // ══════════════════════════════════════════════════════════════════
 // EMAIL (via Netlify Function)
 // ══════════════════════════════════════════════════════════════════
-function sendConfirmationEmail(ref) {
+function sendConfirmationEmail(ref, cancelUrl) {
   if(!state.guest.email) return;
   const g = state.guest;
   const nights = g.nights||1;
@@ -2347,9 +2347,12 @@ function sendConfirmationEmail(ref) {
       ref_code:      ref,
       room_type:     rType,
       room_view:     rView,
+      checkin:       g.checkin,
+      checkout:      g.checkout,
       nights:        String(nights),
       grand_total:   `$${roomCost + svcCost}`,
-      services_list: svcList
+      services_list: svcList,
+      cancel_url:    cancelUrl || ''
     })
   })
   .then(()=> setEmailStatus('sent', `✓ Confirmation sent to ${g.email}`))

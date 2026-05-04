@@ -40,6 +40,14 @@ function verifySessionToken(email, token, expiry) {
   return a.length === b.length && crypto.timingSafeEqual(a, b);
 }
 
+// Cancel token (long-lived, ~1 year) so the guest can self-cancel from the email.
+function signCancelToken(ref, expiry) {
+  return crypto
+    .createHmac('sha256', OTP_SECRET)
+    .update(`cancel|${ref}|${expiry}`)
+    .digest('hex');
+}
+
 function verifyAdminToken(token, expiry) {
   if (!token || !expiry || Date.now() > Number(expiry)) return false;
   const expected = crypto
@@ -241,7 +249,20 @@ module.exports = async (req, res) => {
     await kv.set(BOOKING_KEY(ref), booking);
     await kv.zadd(BOOKINGS_INDEX, createdAt, ref);
 
-    return res.status(200).json({ success: true, ref, booking });
+    // Build a self-serve cancellation URL the guest can click in the confirmation email.
+    const cancelExpiry = createdAt + 365 * 24 * 60 * 60 * 1000;
+    const cancelToken  = signCancelToken(ref, cancelExpiry);
+    const proto = (req.headers['x-forwarded-proto'] || 'https').toString().split(',')[0];
+    const host  = req.headers['host'] || '';
+    const origin = host ? `${proto}://${host}` : '';
+    const cancelUrl = origin
+      ? `${origin}/cancel.html?ref=${encodeURIComponent(ref)}&token=${cancelToken}&exp=${cancelExpiry}`
+      : '';
+
+    return res.status(200).json({
+      success: true, ref, booking,
+      cancelToken, cancelExpiry, cancelUrl
+    });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
