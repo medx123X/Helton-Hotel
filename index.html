@@ -1211,6 +1211,9 @@
       <p class="section-title">Choose Your Room</p>
       <p class="section-subtitle">Step 2 of 4</p>
 
+      <div id="room-dates-banner" style="text-align:center;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin:12px 0 24px;"></div>
+      <div class="alert alert-error" id="room-avail-error" style="margin-bottom:18px;"></div>
+
       <p class="form-label" style="margin-bottom:12px;">Room Type</p>
       <div class="choice-grid">
         <div class="choice-btn" id="rt-1" onclick="selectRoom(1)">
@@ -1693,11 +1696,20 @@ function nextStep(from, to) {
       persons: parseInt(document.getElementById('g-persons').value)||1,
       nights, checkin, checkout
     };
+    // Reset previous room/services selections so a new search is fresh
+    state.room = { type: 0, view: 0 };
+    [1,2].forEach(i => {
+      document.getElementById('rt-'+i)?.classList.remove('selected');
+      document.getElementById('rv-'+i)?.classList.remove('selected');
+    });
+    document.getElementById('room-price-preview').style.display = 'none';
     showScreen('screen-room');
+    loadRoomAvailability();
     return;
   }
   if(from === 'room') {
     if(!state.room.type||!state.room.view) { alert('Please select a room type and view.'); return; }
+    if(!checkSelectedAvailability()) return; // Blocks here, before OTP, with clear message
     showScreen('screen-services');
     return;
   }
@@ -1868,15 +1880,52 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════════════════════════════
 // ROOM SELECTION
 // ══════════════════════════════════════════════════════════════════
+let availabilityMatrix = null; // { '1-1': {available, conflict}, ... }
+
+async function loadRoomAvailability() {
+  // Show selected dates in the banner
+  const banner = document.getElementById('room-dates-banner');
+  if(banner && state.guest.checkin && state.guest.checkout) {
+    banner.textContent = `Checking availability for ${state.guest.checkin} → ${state.guest.checkout} · ${state.guest.nights} night${state.guest.nights===1?'':'s'}`;
+  }
+  document.getElementById('room-avail-error').classList.remove('show');
+  availabilityMatrix = null;
+  try {
+    const url = `/api/availability?checkin=${encodeURIComponent(state.guest.checkin)}&checkout=${encodeURIComponent(state.guest.checkout)}`;
+    const r = await fetch(url);
+    const body = await r.json().catch(() => ({}));
+    if (r.ok && body.matrix) {
+      availabilityMatrix = body.matrix;
+      // Re-evaluate any current selection
+      checkSelectedAvailability();
+    }
+  } catch (e) { /* ignore — fall back to server-side check at booking time */ }
+}
+
+function checkSelectedAvailability() {
+  const errEl = document.getElementById('room-avail-error');
+  errEl.classList.remove('show');
+  if(!availabilityMatrix || !state.room.type || !state.room.view) return true;
+  const cell = availabilityMatrix[`${state.room.type}-${state.room.view}`];
+  if(cell && !cell.available) {
+    errEl.textContent = `That room is already booked between ${cell.conflict.checkin} and ${cell.conflict.checkout}. Please pick a different room or view.`;
+    errEl.classList.add('show');
+    return false;
+  }
+  return true;
+}
+
 function selectRoom(n) {
   state.room.type = n;
   [1,2].forEach(i => document.getElementById('rt-'+i).classList.toggle('selected', i===n));
   updateRoomPrice();
+  checkSelectedAvailability();
 }
 function selectView(n) {
   state.room.view = n;
   [1,2].forEach(i => document.getElementById('rv-'+i).classList.toggle('selected', i===n));
   updateRoomPrice();
+  checkSelectedAvailability();
 }
 function updateRoomPrice() {
   if(!state.room.type || !state.room.view) return;
