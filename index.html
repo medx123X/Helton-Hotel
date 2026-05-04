@@ -1002,7 +1002,7 @@
         <table class="data-table" id="reservationsTable">
           <thead>
             <tr>
-              <th>Ref</th><th>Guest</th><th>Dates</th><th>Nights</th><th>Room</th><th>Total</th><th>Status</th>
+              <th>Ref</th><th>Guest</th><th>Dates</th><th>Nights</th><th>Room</th><th>Total</th><th>Status</th><th>Action</th>
             </tr>
           </thead>
           <tbody id="reservations-body"></tbody>
@@ -1589,7 +1589,7 @@ async function loadReservations() {
   const wrap = document.getElementById('reservations-body');
   const meta = document.getElementById('reservations-meta');
   if(!wrap) return;
-  wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reservations…</td></tr>`;
+  wrap.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">Loading reservations…</td></tr>`;
   if(meta) meta.textContent = '';
   try {
     const r = await fetch('/api/bookings', {
@@ -1600,13 +1600,13 @@ async function loadReservations() {
     });
     const body = await r.json().catch(() => ({}));
     if (!r.ok) {
-      wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:24px;">${body.error || 'Failed to load reservations'}</td></tr>`;
+      wrap.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:24px;">${body.error || 'Failed to load reservations'}</td></tr>`;
       return;
     }
     const list = body.bookings || [];
     if(meta) meta.textContent = list.length ? `${list.length} reservation${list.length===1?'':'s'}` : '';
     if(!list.length) {
-      wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px;">No reservations yet.</td></tr>`;
+      wrap.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px;">No reservations yet.</td></tr>`;
       return;
     }
     const fmtRoom = b => {
@@ -1614,19 +1614,53 @@ async function loadReservations() {
       const v = ['','Pool & Garden','Roof & Garden'][b.room?.view] || '—';
       return `${t} <span style="color:var(--text-muted);">·</span> ${v}`;
     };
-    wrap.innerHTML = list.map(b => `
-      <tr class="staff-row fade-in">
+    const escAttr = s => String(s).replace(/'/g, "\\'");
+    wrap.innerHTML = list.map(b => {
+      const cancelled = b.status === 'cancelled';
+      const statusBadge = cancelled
+        ? `<span class="badge" style="background:rgba(192,57,43,0.15);border:1px solid rgba(192,57,43,0.4);color:#E74C3C;">cancelled</span>`
+        : `<span class="badge badge-gold">${b.status || 'confirmed'}</span>`;
+      const action = cancelled
+        ? `<span style="font-size:0.65rem;color:var(--text-muted);">—</span>`
+        : `<button class="btn btn-danger" style="padding:6px 12px;font-size:0.62rem;letter-spacing:0.15em;" onclick="cancelReservation('${escAttr(b.ref)}')">Cancel</button>`;
+      return `
+      <tr class="staff-row fade-in" style="${cancelled ? 'opacity:0.55;' : ''}">
         <td style="color:var(--gold-light);font-weight:500;">${b.ref}</td>
         <td>${b.guest?.name || '—'}<br><span style="font-size:0.7rem;color:var(--text-muted);">${b.guest?.email || ''}</span></td>
         <td>${b.checkin || '—'}<br><span style="font-size:0.7rem;color:var(--text-muted);">→ ${b.checkout || '—'}</span></td>
         <td>${b.nights || '—'}</td>
         <td>${fmtRoom(b)}</td>
         <td style="color:var(--gold-light);font-weight:500;">$${b.totals?.grand ?? 0}</td>
-        <td><span class="badge badge-gold">${b.status || 'confirmed'}</span></td>
-      </tr>
-    `).join('');
+        <td>${statusBadge}</td>
+        <td>${action}</td>
+      </tr>`;
+    }).join('');
   } catch (e) {
-    wrap.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--danger);padding:24px;">Could not reach server.</td></tr>`;
+    wrap.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--danger);padding:24px;">Could not reach server.</td></tr>`;
+  }
+}
+
+async function cancelReservation(ref) {
+  if(!ref) return;
+  if(!confirm(`Cancel reservation ${ref}? This will free the room and email the guest.`)) return;
+  try {
+    const r = await fetch('/api/bookings', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type':   'application/json',
+        'X-Admin-Token':  adminToken,
+        'X-Admin-Expiry': String(adminExpiry)
+      },
+      body: JSON.stringify({ ref })
+    });
+    const body = await r.json().catch(() => ({}));
+    if (!r.ok || !body.success) {
+      alert(body.error || 'Could not cancel the reservation.');
+      return;
+    }
+    loadReservations();
+  } catch (e) {
+    alert('Could not reach server. Please try again.');
   }
 }
 
