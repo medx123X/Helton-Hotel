@@ -91,17 +91,22 @@
     .card{padding:26px 20px}
     .title{font-size:2rem;letter-spacing:0.1em}
   }
-  /* ── Language toggle ── */
-  .lang-toggle {
-    position: fixed; top: 14px; right: 14px; z-index: 300;
+  /* ── Language switch ── */
+  .lang-switch {
+    position: fixed; top: 12px; right: 12px; z-index: 300;
+    display: inline-flex; gap: 4px;
     background: rgba(13,13,13,0.85); backdrop-filter: blur(8px);
-    border: 1px solid var(--border); color: var(--gold-light);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
-    padding: 8px 16px; border-radius: 2px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid var(--border); border-radius: 2px; padding: 3px;
   }
-  .lang-toggle:hover { background: rgba(201,168,76,0.1); color: var(--gold); border-color: var(--gold); }
-  body.rtl-active .lang-toggle { right: auto; left: 14px; }
+  .lang-switch button {
+    background: transparent; border: none; color: var(--text-muted);
+    font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 500;
+    letter-spacing: 0.15em; padding: 5px 9px; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s; min-width: 28px;
+  }
+  .lang-switch button:hover { color: var(--gold); }
+  .lang-switch button.active { background: var(--gold); color: var(--dark); }
+  body.rtl-active .lang-switch { right: auto; left: 12px; }
   body.rtl-active { text-align: right; }
   body.rtl-active .title, body.rtl-active .tagline,
   body.rtl-active .section-title, body.rtl-active .section-subtitle,
@@ -112,7 +117,10 @@
 </style>
 </head>
 <body>
-<button class="lang-toggle" id="lang-toggle" onclick="toggleLang()">العربية</button>
+<div class="lang-switch" id="lang-switch">
+  <button id="lang-en" onclick="setLang('en')">EN</button>
+  <button id="lang-ar" onclick="setLang('ar')">AR</button>
+</div>
 <div class="wrap">
   <div class="header">
     <div class="stars">★ ★ ★ ★ ★</div>
@@ -198,16 +206,19 @@ function applyLang() {
   document.documentElement.dir  = currentLang === 'ar' ? 'rtl' : 'ltr';
   document.body.classList.toggle('rtl-active', currentLang === 'ar');
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = t('lang_toggle');
+  document.getElementById('lang-en')?.classList.toggle('active', currentLang === 'en');
+  document.getElementById('lang-ar')?.classList.toggle('active', currentLang === 'ar');
   document.getElementById('loading').textContent = t('loading');
 }
-function toggleLang(){
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+function setLang(lang){
+  if (lang !== 'en' && lang !== 'ar') return;
+  if (lang === currentLang) return;
+  currentLang = lang;
   localStorage.setItem('helton_lang', currentLang);
   applyLang();
-  if (lastBooking) renderBooking(lastBooking); // re-render status + details in new language
+  if (typeof lastBooking !== 'undefined' && lastBooking) renderBooking(lastBooking);
 }
+function toggleLang(){ setLang(currentLang === 'ar' ? 'en' : 'ar'); }
 applyLang();
 
 const params = new URLSearchParams(location.search);

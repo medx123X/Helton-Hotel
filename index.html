@@ -642,24 +642,33 @@
     .price-amount { font-size: 1.9rem; }
   }
 
-  /* ── LANGUAGE TOGGLE (floating top-right) ── */
-  .lang-toggle {
-    position: fixed; top: 14px; right: 14px; z-index: 300;
+  /* ── LANGUAGE SWITCH (small EN / AR pills, top-right) ── */
+  .lang-switch {
+    position: fixed; top: 12px; right: 12px; z-index: 300;
+    display: inline-flex; gap: 4px;
     background: rgba(13,13,13,0.85);
     backdrop-filter: blur(8px);
     border: 1px solid var(--border);
-    color: var(--gold-light);
+    border-radius: 2px;
+    padding: 3px;
+  }
+  .lang-switch button {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
     font-family: 'Montserrat', sans-serif;
-    font-size: 0.65rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    padding: 8px 16px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    padding: 5px 9px;
     border-radius: 2px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    min-width: 28px;
   }
-  .lang-toggle:hover { background: rgba(201,168,76,0.1); color: var(--gold); border-color: var(--gold); }
-  .rtl-active .lang-toggle { right: auto; left: 14px; }
+  .lang-switch button:hover { color: var(--gold); }
+  .lang-switch button.active { background: var(--gold); color: var(--dark); }
+  .rtl-active .lang-switch { right: auto; left: 12px; }
 
   /* ── RTL CSS tweaks ── */
   .rtl-active { text-align: right; }
@@ -782,8 +791,11 @@
 </head>
 <body>
 
-<!-- LANGUAGE TOGGLE (always visible) -->
-<button class="lang-toggle" id="lang-toggle" onclick="toggleLang()">العربية</button>
+<!-- LANGUAGE SWITCH (always visible) -->
+<div class="lang-switch" id="lang-switch">
+  <button id="lang-en" onclick="setLang('en')">EN</button>
+  <button id="lang-ar" onclick="setLang('ar')">AR</button>
+</div>
 
 <!-- TOP NAV -->
 <nav class="top-nav" id="topNav">
@@ -870,7 +882,7 @@
         </div>
         <!-- slide 2 -->
         <div class="c-slide" onclick="showScreen('screen-register')" style="min-width:100%;position:relative;height:520px;cursor:pointer;overflow:hidden;flex-shrink:0;">
-          <img src="https://vegasnews.com/wp-content/uploads/2024/01/Best-Hotels-in-Las-Vegas-With-In-Room-Jacuzzi.png" alt="Suite" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;">
+          <img src="https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1400&q=80" alt="Suite" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.1) 60%);"></div>
           <div style="position:absolute;bottom:40px;left:60px;">
             <p style="font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Luxury Suite</p>
@@ -892,7 +904,7 @@
         </div>
         <!-- slide 4 -->
         <div class="c-slide" onclick="showScreen('screen-register')" style="min-width:100%;position:relative;height:520px;cursor:pointer;overflow:hidden;flex-shrink:0;">
-          <img src="https://i.insider.com/56b4bde92e526553008b5195?width=1200" alt="Roof Garden" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;">
+          <img src="https://images.unsplash.com/photo-1519922639192-e73293ca430e?w=1400&q=80" alt="Roof Garden" style="width:100%;height:100%;object-fit:cover;transition:transform 0.6s;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.1) 60%);"></div>
           <div style="position:absolute;bottom:40px;left:60px;">
             <p style="font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Roof & Garden View</p>
@@ -930,7 +942,7 @@
         </div>
         <!-- Spa -->
         <div class="c-slide" style="min-width:50%;position:relative;height:400px;overflow:hidden;flex-shrink:0;padding:0 2px;">
-          <img src="https://hoteldesigns.net/wp-content/uploads/2023/01/Sopwell-House-Sauna-scaled.jpg" alt="Spa" style="width:100%;height:100%;object-fit:cover;">
+          <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=900&q=80" alt="Spa" style="width:100%;height:100%;object-fit:cover;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);"></div>
           <div style="position:absolute;bottom:24px;left:24px;">
                         <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#fff;">Spa & Wellness</p>
@@ -948,7 +960,7 @@
         </div>
         <!-- Jacuzzi -->
         <div class="c-slide" style="min-width:50%;position:relative;height:400px;overflow:hidden;flex-shrink:0;padding:0 2px;">
-          <img src="https://img.freepik.com/premium-photo/rose-petals-jacuzzi-contemporary-bathroom-generative-ai_1042430-3910.jpg" style="width:100%;height:100%;object-fit:cover;">
+          <img src="https://images.unsplash.com/photo-1552858620-c84b180e68c1?w=900&q=80" style="width:100%;height:100%;object-fit:cover;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);"></div>
           <div style="position:absolute;bottom:24px;left:24px;">
                         <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#fff;">Jacuzzi</p>
@@ -957,7 +969,7 @@
         </div>
         <!-- Garden -->
         <div class="c-slide" style="min-width:50%;position:relative;height:400px;overflow:hidden;flex-shrink:0;padding:0 2px;">
-          <img src="https://yardzen.com/wp-content/uploads/2022/05/Potomac-Landscape-Design-07.jpg" style="width:100%;height:100%;object-fit:cover;">
+          <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=900&q=80" style="width:100%;height:100%;object-fit:cover;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,transparent 50%);"></div>
           <div style="position:absolute;bottom:24px;left:24px;">
                         <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#fff;">Lush Gardens</p>
@@ -991,7 +1003,7 @@
       <div class="carousel" id="carousel-dining" style="display:flex;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);will-change:transform;">
         <!-- Buffet -->
         <div class="c-slide" style="min-width:50%;position:relative;height:460px;overflow:hidden;flex-shrink:0;padding:0 2px;">
-          <img src="https://static1.therichestimages.com/wordpress/wp-content/uploads/2022/11/Wicked-Spoon-Restaurant.jpg" alt="Restaurant" style="width:100%;height:100%;object-fit:cover;">
+          <img src="https://images.unsplash.com/photo-1592861956120-e524fc739696?w=900&q=80" alt="Restaurant" style="width:100%;height:100%;object-fit:cover;">
           <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.8) 0%,transparent 55%);"></div>
           <div style="position:absolute;bottom:32px;left:32px;right:32px;">
             <span class="badge badge-gold" style="margin-bottom:12px;display:inline-block;">Included</span>
@@ -1750,8 +1762,8 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-html]').forEach(el => {
     el.innerHTML = t(el.getAttribute('data-i18n-html'));
   });
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = t('lang_toggle');
+  document.getElementById('lang-en')?.classList.toggle('active', currentLang === 'en');
+  document.getElementById('lang-ar')?.classList.toggle('active', currentLang === 'ar');
   // Re-render any dynamic UI that's currently on-screen
   try {
     // Refresh top-nav labels if visible
@@ -1770,11 +1782,15 @@ function applyLang() {
     }
   } catch (e) { /* ignore — i18n runs before state init on first load */ }
 }
-function toggleLang() {
-  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+function setLang(lang) {
+  if (lang !== 'en' && lang !== 'ar') return;
+  if (lang === currentLang) return;
+  currentLang = lang;
   localStorage.setItem('helton_lang', currentLang);
   applyLang();
 }
+// Legacy alias (some earlier code may still call this)
+function toggleLang() { setLang(currentLang === 'ar' ? 'en' : 'ar'); }
 document.addEventListener('DOMContentLoaded', applyLang);
 
 // ══════════════════════════════════════════════════════════════════
