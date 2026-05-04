@@ -91,25 +91,44 @@
     .card{padding:26px 20px}
     .title{font-size:2rem;letter-spacing:0.1em}
   }
+  /* ── Language toggle ── */
+  .lang-toggle {
+    position: fixed; top: 14px; right: 14px; z-index: 300;
+    background: rgba(13,13,13,0.85); backdrop-filter: blur(8px);
+    border: 1px solid var(--border); color: var(--gold-light);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 8px 16px; border-radius: 2px; cursor: pointer; transition: all 0.2s;
+  }
+  .lang-toggle:hover { background: rgba(201,168,76,0.1); color: var(--gold); border-color: var(--gold); }
+  body.rtl-active .lang-toggle { right: auto; left: 14px; }
+  body.rtl-active { text-align: right; }
+  body.rtl-active .title, body.rtl-active .tagline,
+  body.rtl-active .section-title, body.rtl-active .section-subtitle,
+  body.rtl-active .stars, body.rtl-active .header { text-align: center; }
+  body.rtl-active .row { flex-direction: row-reverse; }
+  body.rtl-active .row .key { text-align: right; }
+  body.rtl-active .row .val { text-align: left; }
 </style>
 </head>
 <body>
+<button class="lang-toggle" id="lang-toggle" onclick="toggleLang()">العربية</button>
 <div class="wrap">
   <div class="header">
     <div class="stars">★ ★ ★ ★ ★</div>
     <h1 class="title">Helton Hotel</h1>
-    <p class="tagline">Manage Reservation</p>
+    <p class="tagline" data-i18n="manage_heading">Manage Reservation</p>
   </div>
 
   <div class="card" id="card">
-    <div class="loading" id="loading">Loading your reservation…</div>
+    <div class="loading" id="loading">…</div>
 
     <div id="content" style="display:none;">
-      <p class="section-title" id="title-line">Your Reservation</p>
+      <p class="section-title" id="title-line" data-i18n="your_res">Your Reservation</p>
       <p class="section-subtitle" id="status-line"></p>
 
       <div class="ref">
-        <div class="label">Reference</div>
+        <div class="label" data-i18n="ref_label">Reference</div>
         <div class="code" id="ref-code">—</div>
       </div>
 
@@ -119,8 +138,8 @@
       <div class="alert alert-success" id="ok"></div>
 
       <div id="actions">
-        <button class="btn btn-danger" id="cancel-btn">Cancel My Reservation</button>
-        <a class="btn btn-outline" href="/" style="text-decoration:none;">← Back to Hotel</a>
+        <button class="btn btn-danger" id="cancel-btn" data-i18n="cancel_btn">Cancel My Reservation</button>
+        <a class="btn btn-outline" href="/" style="text-decoration:none;" data-i18n="back_home">← Back to Hotel</a>
       </div>
     </div>
   </div>
@@ -129,23 +148,89 @@
 </div>
 
 <script>
+// ── I18N (same keys as index.html; trimmed to what this page uses) ──
+const TRANSLATIONS = {
+  en: {
+    manage_heading: 'Manage Reservation',
+    your_res: 'Your Reservation',
+    ref_label: 'Reference',
+    cancel_btn: 'Cancel My Reservation',
+    back_home: '← Back to Hotel',
+    status_confirmed: 'Confirmed', status_cancelled: 'Cancelled',
+    sum_guest: 'Guest', sum_checkin: 'Check-In', sum_checkout: 'Check-Out',
+    sum_nights: 'Nights', sum_room: 'Room', sum_total: 'Total',
+    already_cancelled: 'This reservation has already been cancelled.',
+    cancel_success: 'Your reservation has been cancelled. A confirmation has been emailed to you.',
+    loading: 'Loading your reservation…',
+    err_link_incomplete: 'This link is incomplete. Please use the original link from your confirmation email.',
+    err_generic: 'Could not load this reservation.',
+    err_server: 'Could not reach the server. Please try again.',
+    confirm_cancel: 'Cancel this reservation? This action cannot be undone.',
+    cancelling: 'Cancelling…',
+    cannot_load: 'Cannot load reservation',
+    lang_toggle: 'العربية'
+  },
+  ar: {
+    manage_heading: 'إدارة الحجز',
+    your_res: 'حجزك',
+    ref_label: 'الرمز',
+    cancel_btn: 'إلغاء حجزي',
+    back_home: '→ العودة إلى الفندق',
+    status_confirmed: 'مؤكد', status_cancelled: 'ملغى',
+    sum_guest: 'الضيف', sum_checkin: 'الوصول', sum_checkout: 'المغادرة',
+    sum_nights: 'الليالي', sum_room: 'الغرفة', sum_total: 'الإجمالي',
+    already_cancelled: 'هذا الحجز ملغى بالفعل.',
+    cancel_success: 'تم إلغاء حجزك. تم إرسال تأكيد إلى بريدك الإلكتروني.',
+    loading: 'جارٍ تحميل الحجز…',
+    err_link_incomplete: 'الرابط غير مكتمل. يرجى استخدام الرابط الأصلي من بريد التأكيد.',
+    err_generic: 'تعذّر تحميل هذا الحجز.',
+    err_server: 'تعذّر الاتصال بالخادم. يرجى المحاولة لاحقًا.',
+    confirm_cancel: 'هل تريد إلغاء هذا الحجز؟ لا يمكن التراجع عن هذا الإجراء.',
+    cancelling: 'جارٍ الإلغاء…',
+    cannot_load: 'تعذّر تحميل الحجز',
+    lang_toggle: 'English'
+  }
+};
+let currentLang = localStorage.getItem('helton_lang') === 'ar' ? 'ar' : 'en';
+function t(k){ return (TRANSLATIONS[currentLang]&&TRANSLATIONS[currentLang][k]) || TRANSLATIONS.en[k] || k; }
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir  = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.body.classList.toggle('rtl-active', currentLang === 'ar');
+  document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = t('lang_toggle');
+  document.getElementById('loading').textContent = t('loading');
+}
+function toggleLang(){
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  localStorage.setItem('helton_lang', currentLang);
+  applyLang();
+  if (lastBooking) renderBooking(lastBooking); // re-render status + details in new language
+}
+applyLang();
+
 const params = new URLSearchParams(location.search);
 const ref   = params.get('ref');
 const token = params.get('token');
 const exp   = params.get('exp') || params.get('expiry');
 
 const $ = (id) => document.getElementById(id);
+let lastBooking = null;
 const fmtRoom = (b) => {
-  const t = ['','Double Room','Suite'][b.room?.type] || '—';
-  const v = ['','Pool & Garden','Roof & Garden'][b.room?.view] || '—';
-  return `${t} · ${v}`;
+  const en = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
+  const typeNames = {1: currentLang==='ar' ? 'غرفة مزدوجة' : 'Double Room', 2: currentLang==='ar' ? 'جناح' : 'Suite'};
+  const viewNames = {1: currentLang==='ar' ? 'المسبح والحديقة' : 'Pool & Garden', 2: currentLang==='ar' ? 'السطح والحديقة' : 'Roof & Garden'};
+  const typ = typeNames[b.room?.type] || '—';
+  const vw  = viewNames[b.room?.view] || '—';
+  return `${typ} · ${vw}`;
 };
 
 function showError(msg) {
   $('loading').style.display = 'none';
   $('content').style.display = 'block';
   $('actions').style.display = 'none';
-  $('title-line').textContent = 'Cannot load reservation';
+  $('title-line').textContent = t('cannot_load');
   $('status-line').textContent = '';
   $('details').innerHTML = '';
   $('err').textContent = msg;
@@ -153,51 +238,52 @@ function showError(msg) {
 }
 
 function renderBooking(b) {
+  lastBooking = b;
   $('loading').style.display = 'none';
   $('content').style.display = 'block';
   $('ref-code').textContent = b.ref || ref;
   const cancelled = b.status === 'cancelled';
   $('status-line').innerHTML = cancelled
-    ? '<span class="badge badge-cancelled">Cancelled</span>'
-    : '<span class="badge badge-confirmed">Confirmed</span>';
+    ? `<span class="badge badge-cancelled">${t('status_cancelled')}</span>`
+    : `<span class="badge badge-confirmed">${t('status_confirmed')}</span>`;
   $('details').innerHTML = `
-    <div class="row"><span class="key">Guest</span><span class="val">${b.guest?.name || '—'}</span></div>
-    <div class="row"><span class="key">Check-In</span><span class="val">${b.checkin || '—'}</span></div>
-    <div class="row"><span class="key">Check-Out</span><span class="val">${b.checkout || '—'}</span></div>
-    <div class="row"><span class="key">Nights</span><span class="val">${b.nights || '—'}</span></div>
-    <div class="row"><span class="key">Room</span><span class="val">${fmtRoom(b)}</span></div>
-    <div class="row"><span class="key">Total</span><span class="val" style="color:var(--gold-light)">$${b.totals?.grand ?? 0}</span></div>
+    <div class="row"><span class="key">${t('sum_guest')}</span><span class="val">${b.guest?.name || '—'}</span></div>
+    <div class="row"><span class="key">${t('sum_checkin')}</span><span class="val">${b.checkin || '—'}</span></div>
+    <div class="row"><span class="key">${t('sum_checkout')}</span><span class="val">${b.checkout || '—'}</span></div>
+    <div class="row"><span class="key">${t('sum_nights')}</span><span class="val">${b.nights || '—'}</span></div>
+    <div class="row"><span class="key">${t('sum_room')}</span><span class="val">${fmtRoom(b)}</span></div>
+    <div class="row"><span class="key">${t('sum_total')}</span><span class="val" style="color:var(--gold-light)">$${b.totals?.grand ?? 0}</span></div>
   `;
   if (cancelled) {
     $('cancel-btn').style.display = 'none';
-    $('ok').textContent = 'This reservation has already been cancelled.';
+    $('ok').textContent = t('already_cancelled');
     $('ok').classList.add('show');
   }
 }
 
 async function load() {
   if (!ref || !token || !exp) {
-    showError('This link is incomplete. Please use the original link from your confirmation email.');
+    showError(t('err_link_incomplete'));
     return;
   }
   try {
     const r = await fetch(`/api/cancel?ref=${encodeURIComponent(ref)}&token=${encodeURIComponent(token)}&exp=${encodeURIComponent(exp)}`);
     const body = await r.json().catch(() => ({}));
     if (!r.ok || !body.ok) {
-      showError(body.error || 'Could not load this reservation.');
+      showError(body.error || t('err_generic'));
       return;
     }
     renderBooking(body.booking);
   } catch (e) {
-    showError('Could not reach the server. Please try again.');
+    showError(t('err_server'));
   }
 }
 
 $('cancel-btn').addEventListener('click', async () => {
-  if (!confirm('Cancel this reservation? This action cannot be undone.')) return;
+  if (!confirm(t('confirm_cancel'))) return;
   const btn = $('cancel-btn');
   btn.disabled = true;
-  btn.textContent = 'Cancelling…';
+  btn.textContent = t('cancelling');
   $('err').classList.remove('show');
   try {
     const r = await fetch('/api/cancel', {
@@ -207,22 +293,20 @@ $('cancel-btn').addEventListener('click', async () => {
     });
     const body = await r.json().catch(() => ({}));
     if (!r.ok || !body.ok) {
-      $('err').textContent = body.error || 'Could not cancel the reservation.';
+      $('err').textContent = body.error || t('err_generic');
       $('err').classList.add('show');
       btn.disabled = false;
-      btn.textContent = 'Cancel My Reservation';
+      btn.textContent = t('cancel_btn');
       return;
     }
     renderBooking(body.booking);
-    $('ok').textContent = body.alreadyCancelled
-      ? 'This reservation was already cancelled.'
-      : 'Your reservation has been cancelled. A confirmation has been emailed to you.';
+    $('ok').textContent = body.alreadyCancelled ? t('already_cancelled') : t('cancel_success');
     $('ok').classList.add('show');
   } catch (e) {
-    $('err').textContent = 'Could not reach the server. Please try again.';
+    $('err').textContent = t('err_server');
     $('err').classList.add('show');
     btn.disabled = false;
-    btn.textContent = 'Cancel My Reservation';
+    btn.textContent = t('cancel_btn');
   }
 });
 

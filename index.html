@@ -642,6 +642,43 @@
     .price-amount { font-size: 1.9rem; }
   }
 
+  /* ── LANGUAGE TOGGLE (floating top-right) ── */
+  .lang-toggle {
+    position: fixed; top: 14px; right: 14px; z-index: 300;
+    background: rgba(13,13,13,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    color: var(--gold-light);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-toggle:hover { background: rgba(201,168,76,0.1); color: var(--gold); border-color: var(--gold); }
+  .rtl-active .lang-toggle { right: auto; left: 14px; }
+
+  /* ── RTL CSS tweaks ── */
+  .rtl-active { text-align: right; }
+  .rtl-active body, .rtl-active .container, .rtl-active .card { text-align: right; }
+  .rtl-active .form-label, .rtl-active .price-label, .rtl-active .section-title,
+  .rtl-active .section-subtitle, .rtl-active .hotel-tagline { text-align: inherit; }
+  .rtl-active .section-title, .rtl-active .section-subtitle { text-align: center; }
+  .rtl-active .hotel-header { text-align: center; }
+  .rtl-active .summary-key, .rtl-active .row .key { text-align: right; }
+  .rtl-active .summary-val, .rtl-active .row .val { text-align: left; }
+  .rtl-active .price-line { flex-direction: row-reverse; }
+  .rtl-active .data-table th, .rtl-active .data-table td { text-align: right; }
+  .rtl-active .nav-links, .rtl-active .btn-group { flex-direction: row-reverse; }
+  .rtl-active .top-nav { flex-direction: row-reverse; }
+  .rtl-active .progress-bar { flex-direction: row-reverse; }
+  .rtl-active .alert { text-align: right; }
+  /* Keep date inputs LTR-rendered inside RTL so the calendar icons stay right */
+  .rtl-active input[type="date"], .rtl-active input[type="number"], .rtl-active input[type="tel"] { direction: ltr; text-align: right; }
+
   /* ── RESPONSIVE (ultra-narrow, <= 360px — older/small phones) ── */
   @media(max-width:360px) {
     .container { padding: 24px 12px 48px; }
@@ -745,6 +782,9 @@
 </head>
 <body>
 
+<!-- LANGUAGE TOGGLE (always visible) -->
+<button class="lang-toggle" id="lang-toggle" onclick="toggleLang()">العربية</button>
+
 <!-- TOP NAV -->
 <nav class="top-nav" id="topNav">
   <div class="nav-logo"> Helton</div>
@@ -764,7 +804,7 @@
       <a href="#gallery" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Gallery</a>
       <a href="#dining" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Dining</a>
       <button onclick="showScreen('screen-login')" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Admin</button>
-      <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;">Book Now</button>
+      <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
     </div>
   </nav>
 
@@ -785,7 +825,7 @@
       <div style="width:80px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto 24px;animation:fadeInUp 0.8s 0.5s both;"></div>
       <p style="font-size:clamp(0.8rem,1.5vw,1rem);color:var(--text-muted);letter-spacing:0.1em;line-height:1.8;margin-bottom:48px;animation:fadeInUp 0.8s 0.6s both;">Where every detail is a luxury</p>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;animation:fadeInUp 0.8s 0.8s both;">
-        <button class="btn btn-primary" onclick="showScreen('screen-register')" style="padding:16px 48px;font-size:0.75rem;letter-spacing:0.3em;"> &nbsp; Reserve Your Stay</button>
+        <button class="btn btn-primary" onclick="showScreen('screen-register')" style="padding:16px 48px;font-size:0.75rem;letter-spacing:0.3em;" data-i18n="cta_reserve">Reserve Your Stay</button>
         <a href="#amenities" class="btn btn-outline" style="padding:16px 40px;font-size:0.75rem;letter-spacing:0.3em;text-decoration:none;">Explore Hotel</a>
       </div>
     </div>
@@ -1003,7 +1043,7 @@
       <p style="font-size:0.65rem;letter-spacing:0.4em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;">Begin Your Journey</p>
       <h2 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,5vw,4rem);font-weight:300;color:var(--text);margin-bottom:16px;">Ready to Experience Helton?</h2>
       <p style="font-size:0.85rem;color:var(--text-muted);max-width:480px;margin:0 auto 40px;line-height:1.8;">Reserve your stay today and let us craft an unforgettable experience tailored entirely for you.</p>
-      <button class="btn btn-primary" onclick="showScreen('screen-register')" style="padding:18px 56px;font-size:0.8rem;letter-spacing:0.3em;"> &nbsp; Reserve Now</button>
+      <button class="btn btn-primary" onclick="showScreen('screen-register')" style="padding:18px 56px;font-size:0.8rem;letter-spacing:0.3em;" data-i18n="cta_reserve_now">Reserve Now</button>
     </div>
   </section>
 
@@ -1131,7 +1171,7 @@
 <div class="screen" id="screen-register">
   <div class="hotel-header">
     <h1 class="hotel-name">Helton Hotel</h1>
-    <p class="hotel-tagline">Guest Registration</p>
+    <p class="hotel-tagline" data-i18n="reg_guest">Guest Registration</p>
   </div>
   <div class="container">
     <div class="fade-in" style="margin-top:40px;">
@@ -1141,55 +1181,55 @@
         <div class="step-dot" id="step3">3</div>
         <div class="step-dot" id="step4">4</div>
       </div>
-      <p class="section-title">Your Details</p>
-      <p class="section-subtitle">Step 1 of 4</p>
+      <p class="section-title" data-i18n="reg_your_details">Your Details</p>
+      <p class="section-subtitle" data-i18n="reg_step1">Step 1 of 4</p>
       <div class="card">
         <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input class="form-input" id="g-name" placeholder="Enter your full name">
+          <label class="form-label" data-i18n="reg_full_name">Full Name</label>
+          <input class="form-input" id="g-name" placeholder="Enter your full name" data-i18n-ph="reg_full_name_ph">
         </div>
         <div class="form-group">
-          <label class="form-label">Email Address <span style="color:var(--gold);font-size:0.65rem;letter-spacing:0.1em;">(confirmation will be sent here)</span></label>
-          <input class="form-input" id="g-email" type="email" placeholder="your@email.com">
+          <label class="form-label"><span data-i18n="reg_email">Email Address</span> <span style="color:var(--gold);font-size:0.65rem;letter-spacing:0.1em;" data-i18n="reg_email_hint">(confirmation will be sent here)</span></label>
+          <input class="form-input" id="g-email" type="email" placeholder="your@email.com" data-i18n-ph="reg_email_ph">
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">National ID</label>
-            <input class="form-input" id="g-nid" placeholder="National ID number" type="number">
+            <label class="form-label" data-i18n="reg_nid">National ID</label>
+            <input class="form-input" id="g-nid" placeholder="National ID number" type="number" data-i18n-ph="reg_nid_ph">
           </div>
           <div class="form-group">
-            <label class="form-label">Phone Number</label>
-            <input class="form-input" id="g-phone" placeholder="+20 xxx xxx xxxx" type="tel">
+            <label class="form-label" data-i18n="reg_phone">Phone Number</label>
+            <input class="form-input" id="g-phone" placeholder="+20 xxx xxx xxxx" type="tel" data-i18n-ph="reg_phone_ph">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Number of Guests</label>
+            <label class="form-label" data-i18n="reg_persons">Number of Guests</label>
             <select class="form-select" id="g-persons">
-              <option value="1">1 Guest</option>
-              <option value="2">2 Guests</option>
-              <option value="3">3 Guests</option>
-              <option value="4">4 Guests</option>
+              <option value="1" data-i18n="guest_1">1 Guest</option>
+              <option value="2" data-i18n="guest_2">2 Guests</option>
+              <option value="3" data-i18n="guest_3">3 Guests</option>
+              <option value="4" data-i18n="guest_4">4 Guests</option>
             </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Stay Length</label>
+            <label class="form-label" data-i18n="reg_stay">Stay Length</label>
             <input class="form-input" id="g-nights-display" type="text" value="—" readonly style="opacity:0.7;cursor:not-allowed;">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Check-In Date</label>
+            <label class="form-label" data-i18n="reg_checkin">Check-In Date</label>
             <input class="form-input" id="g-checkin" type="date">
           </div>
           <div class="form-group">
-            <label class="form-label">Check-Out Date</label>
+            <label class="form-label" data-i18n="reg_checkout">Check-Out Date</label>
             <input class="form-input" id="g-checkout" type="date">
           </div>
         </div>
         <div class="btn-group">
-          <button class="btn btn-primary" onclick="nextStep('register','room')">Continue →</button>
-          <button class="btn btn-outline" onclick="showScreen('screen-welcome')">← Back</button>
+          <button class="btn btn-primary" onclick="nextStep('register','room')" data-i18n="btn_continue">Continue →</button>
+          <button class="btn btn-outline" onclick="showScreen('screen-welcome')" data-i18n="btn_back">← Back</button>
         </div>
       </div>
     </div>
@@ -1202,7 +1242,7 @@
 <div class="screen" id="screen-otp">
   <div class="hotel-header">
     <h1 class="hotel-name">Helton Hotel</h1>
-    <p class="hotel-tagline">Email Verification</p>
+    <p class="hotel-tagline" data-i18n="otp_verify_heading">Email Verification</p>
   </div>
   <div class="container" style="max-width:460px;">
     <div class="fade-in" style="margin-top:40px;">
@@ -1213,19 +1253,19 @@
         <div class="step-dot active"></div>
         <div class="step-dot">4</div>
       </div>
-      <p class="section-title">Verify Your Email</p>
-      <p class="section-subtitle">Step 4 of 5 — Confirm your identity</p>
+      <p class="section-title" data-i18n="otp_verify_title">Verify Your Email</p>
+      <p class="section-subtitle" data-i18n="otp_secure">Secure Step</p>
       <div class="card">
         <div style="text-align:center;margin-bottom:24px;">
           <div style="font-size:2.5rem;margin-bottom:12px;"></div>
           <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.7;">
-            We sent a <strong style="color:var(--gold-light);">6-digit code</strong> to<br>
+            <span data-i18n="otp_sent_to">We sent a 6-digit verification code to</span><br>
             <strong id="otp-email-display" style="color:var(--text);">your email</strong>
           </p>
         </div>
         <div class="alert alert-error" id="otp-error"></div>
         <div class="form-group">
-          <label class="form-label">Enter Verification Code</label>
+          <label class="form-label" data-i18n="otp_enter_code">Enter Verification Code</label>
           <div style="display:flex;gap:10px;justify-content:center;margin:8px 0;">
             <input class="form-input otp-digit" id="otp0" maxlength="1" type="text" inputmode="numeric"
               style="width:52px;height:56px;text-align:center;font-size:1.4rem;font-weight:500;padding:0;">
@@ -1243,19 +1283,18 @@
         </div>
         <div id="otp-sending" style="text-align:center;font-size:0.75rem;color:var(--text-muted);margin-bottom:16px;display:none;">
           <span class="loading-dot">●</span> <span class="loading-dot">●</span> <span class="loading-dot">●</span>
-          &nbsp; Sending code…
+          &nbsp; <span data-i18n="otp_sending">Sending code…</span>
         </div>
         <div class="btn-group">
-          <button class="btn btn-primary btn-full" onclick="verifyOTP()">Verify & Continue →</button>
+          <button class="btn btn-primary btn-full" onclick="verifyOTP()" data-i18n="otp_verify_btn">Verify & Continue →</button>
         </div>
         <div style="text-align:center;margin-top:16px;">
-          <span style="font-size:0.72rem;color:var(--text-muted);">Didn't receive it? </span>
-          <span style="font-size:0.72rem;color:var(--gold);cursor:pointer;" onclick="resendOTP()">Resend code</span>
+          <span style="font-size:0.72rem;color:var(--gold);cursor:pointer;" onclick="resendOTP()" data-i18n="otp_resend">Resend code</span>
         </div>
         <div id="otp-resend-msg" style="text-align:center;font-size:0.72rem;margin-top:8px;"></div>
       </div>
       <div class="btn-group" style="justify-content:center;">
-        <button class="btn btn-outline" onclick="showScreen('screen-services')">← Back</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-services')" data-i18n="btn_back">← Back</button>
       </div>
     </div>
   </div>
@@ -1267,7 +1306,7 @@
 <div class="screen" id="screen-room">
   <div class="hotel-header">
     <h1 class="hotel-name">Helton Hotel</h1>
-    <p class="hotel-tagline">Room Selection</p>
+    <p class="hotel-tagline" data-i18n="room_selection">Room Selection</p>
   </div>
   <div class="container">
     <div class="fade-in" style="margin-top:40px;">
@@ -1277,53 +1316,53 @@
         <div class="step-dot" id="step3b">3</div>
         <div class="step-dot" id="step4b">4</div>
       </div>
-      <p class="section-title">Choose Your Room</p>
-      <p class="section-subtitle">Step 2 of 4</p>
+      <p class="section-title" data-i18n="room_choose">Choose Your Room</p>
+      <p class="section-subtitle" data-i18n="room_step2">Step 2 of 4</p>
 
       <div id="room-dates-banner" style="text-align:center;font-size:0.72rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);margin:12px 0 24px;"></div>
       <div class="alert alert-error" id="room-avail-error" style="margin-bottom:18px;"></div>
 
-      <p class="form-label" style="margin-bottom:12px;">Room Type</p>
+      <p class="form-label" style="margin-bottom:12px;" data-i18n="room_type_label">Room Type</p>
       <div class="choice-grid">
         <div class="choice-btn" id="rt-1" onclick="selectRoom(1)">
           <span class="icon"></span>
-          <span class="label">Double Room</span>
-          <span class="desc">Elegant double bed, perfect for couples or solo travelers</span>
-          <div style="margin-top:10px;font-size:0.8rem;color:var(--gold)">From $250/night</div>
+          <span class="label" data-i18n="room_double">Double Room</span>
+          <span class="desc" data-i18n="room_double_desc">Elegant double bed, perfect for couples or solo travelers</span>
+          <div style="margin-top:10px;font-size:0.8rem;color:var(--gold)" data-i18n="from_price_double">From $250/night</div>
         </div>
         <div class="choice-btn" id="rt-2" onclick="selectRoom(2)">
           <span class="icon"></span>
-          <span class="label">Suite</span>
-          <span class="desc">Spacious luxury suite with premium amenities and panoramic views</span>
-          <div style="margin-top:10px;font-size:0.8rem;color:var(--gold)">From $250/night</div>
+          <span class="label" data-i18n="room_suite">Suite</span>
+          <span class="desc" data-i18n="room_suite_desc">Spacious luxury suite with premium amenities and panoramic views</span>
+          <div style="margin-top:10px;font-size:0.8rem;color:var(--gold)" data-i18n="from_price_suite">From $550/night</div>
         </div>
       </div>
 
-      <div class="divider">Select Your View</div>
+      <div class="divider" data-i18n="room_view_label">Select Your View</div>
       <div class="choice-grid">
         <div class="choice-btn" id="rv-1" onclick="selectView(1)">
           <span class="icon"></span>
-          <span class="label">Pool & Garden</span>
-          <span class="desc">Serene garden views overlooking the resort pool</span>
-          <div style="margin-top:10px;font-size:0.8rem;color:var(--text-muted)">+$80 fee</div>
+          <span class="label" data-i18n="view_pool">Pool & Garden</span>
+          <span class="desc" data-i18n="view_pool_desc">Serene garden views overlooking the resort pool</span>
+          <div style="margin-top:10px;font-size:0.8rem;color:var(--text-muted)" data-i18n="fee_pool">+$80 fee</div>
         </div>
         <div class="choice-btn" id="rv-2" onclick="selectView(2)">
           <span class="icon"></span>
-          <span class="label">Roof & Garden</span>
-          <span class="desc">Breathtaking rooftop panorama with lush garden surroundings</span>
-          <div style="margin-top:10px;font-size:0.8rem;color:var(--text-muted)">+$100 fee</div>
+          <span class="label" data-i18n="view_roof">Roof & Garden</span>
+          <span class="desc" data-i18n="view_roof_desc">Breathtaking rooftop panorama with lush garden surroundings</span>
+          <div style="margin-top:10px;font-size:0.8rem;color:var(--text-muted)" data-i18n="fee_roof">+$100 fee</div>
         </div>
       </div>
 
       <div id="room-price-preview" style="display:none;" class="price-box">
-        <p class="price-label">Estimated Room Cost</p>
+        <p class="price-label" data-i18n="room_cost">Estimated Room Cost</p>
         <p class="price-amount" id="room-price-val">$0</p>
         <div class="price-breakdown" id="room-price-breakdown"></div>
       </div>
 
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="nextStep('room','services')">Continue →</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-register')">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep('room','services')" data-i18n="btn_continue">Continue →</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-register')" data-i18n="btn_back">← Back</button>
       </div>
     </div>
   </div>
@@ -1335,7 +1374,7 @@
 <div class="screen" id="screen-services">
   <div class="hotel-header">
     <h1 class="hotel-name">Helton Hotel</h1>
-    <p class="hotel-tagline">Hotel Services</p>
+    <p class="hotel-tagline" data-i18n="svc_heading">Additional Services</p>
   </div>
   <div class="container wide">
     <div class="fade-in" style="margin-top:40px;">
@@ -1346,8 +1385,8 @@
         <div class="step-dot"></div>
         <div class="step-dot">5</div>
       </div>
-      <p class="section-title">Enhance Your Stay</p>
-      <p class="section-subtitle">Step 3 of 5 — Optional extras included in your stay</p>
+      <p class="section-title" data-i18n="svc_enhance">Enhance Your Stay</p>
+      <p class="section-subtitle" data-i18n="svc_step3">Step 3 of 4</p>
 
       <div class="alert alert-info show">
         <strong>Included with your room:</strong> Daily housekeeping • Free gym (9AM–9PM) • Open area pool (8AM–6PM) • Open buffet dining
@@ -1390,14 +1429,14 @@
       <div id="service-panel" style="display:none;margin-top:24px;" class="card fade-in"></div>
 
       <div class="price-box" style="margin-top:32px;">
-        <p class="price-label">Services Total</p>
+        <p class="price-label" data-i18n="sum_services_total">Services Total</p>
         <p class="price-amount" id="svc-total">$0</p>
         <div id="svc-items" class="price-breakdown"></div>
       </div>
 
       <div class="btn-group">
-        <button class="btn btn-primary" onclick="nextStep('services','otp')">Continue →</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-room')">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep('services','otp')" data-i18n="btn_continue">Continue →</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-room')" data-i18n="btn_back">← Back</button>
       </div>
     </div>
   </div>
@@ -1409,7 +1448,7 @@
 <div class="screen" id="screen-confirm">
   <div class="hotel-header">
     <h1 class="hotel-name">Helton Hotel</h1>
-    <p class="hotel-tagline">Booking Confirmation</p>
+    <p class="hotel-tagline" data-i18n="confirm_title">Booking Confirmation</p>
   </div>
   <div class="container">
     <div class="fade-in" style="margin-top:40px;">
@@ -1420,8 +1459,8 @@
         <div class="step-dot done"></div>
         <div class="step-dot active">5</div>
       </div>
-      <p class="section-title">Review Your Booking</p>
-      <p class="section-subtitle">Step 5 of 5</p>
+      <p class="section-title" data-i18n="confirm_review">Review Your Booking</p>
+      <p class="section-subtitle" data-i18n="confirm_step4">Step 4 of 4</p>
       <div class="receipt">
         <div class="receipt-header">
           <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold);letter-spacing:0.1em;"> Helton Hotel </p>
@@ -1429,22 +1468,22 @@
         </div>
         <div class="receipt-body" id="receipt-body">
           <div id="summary-data"></div>
-          <div class="divider">Charges</div>
+          <div class="divider" data-i18n="sum_charges">Charges</div>
           <div id="summary-charges"></div>
         </div>
         <div class="receipt-footer">
           <div>
-            <p style="font-size:0.65rem;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase;">Grand Total</p>
+            <p style="font-size:0.65rem;color:var(--text-muted);letter-spacing:0.2em;text-transform:uppercase;" data-i18n="grand_total">Grand Total</p>
             <p style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--gold)" id="grand-total">$0</p>
           </div>
-          <span class="badge badge-gold">Pending Confirmation</span>
+          <span class="badge badge-gold" data-i18n="pending_confirm">Pending Confirmation</span>
         </div>
       </div>
 
       <div class="alert alert-error" id="confirm-error" style="margin-top:24px;"></div>
       <div class="btn-group" style="justify-content:center;margin-top:32px;">
-        <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()"> Confirm Booking</button>
-        <button class="btn btn-outline" onclick="showScreen('screen-services')">← Revise</button>
+        <button class="btn btn-primary" id="confirm-btn" onclick="confirmBooking()" data-i18n="confirm_btn">Confirm Booking</button>
+        <button class="btn btn-outline" onclick="showScreen('screen-services')" data-i18n="confirm_revise">← Revise</button>
       </div>
     </div>
   </div>
@@ -1501,12 +1540,12 @@
 <div class="screen" id="screen-success" style="justify-content:center;align-items:center;text-align:center;min-height:100vh;">
   <div class="fade-in" style="padding:40px 20px;">
     <div style="font-size:4rem;margin-bottom:20px;"></div>
-    <p class="hotel-name" style="margin-bottom:12px;">Booking Confirmed</p>
-    <p class="hotel-tagline" style="margin-bottom:32px;">Your stay at Helton Hotel has been reserved</p>
+    <p class="hotel-name" style="margin-bottom:12px;" data-i18n="success_heading">Booking Confirmed</p>
+    <p class="hotel-tagline" style="margin-bottom:32px;" data-i18n="success_sub">Your stay at Helton Hotel has been reserved</p>
     <div class="card" style="max-width:480px;margin:0 auto 24px;">
-      <p id="success-ref" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.2em;text-transform:uppercase;">Reservation Reference</p>
+      <p id="success-ref" style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;letter-spacing:0.2em;text-transform:uppercase;" data-i18n="success_ref">Reservation Reference</p>
       <p id="success-code" style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;color:var(--gold);"></p>
-      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;">Please keep this reference for check-in</p>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-top:8px;" data-i18n="success_check">Please keep this reference for check-in</p>
       <div id="email-status-wrap" style="margin-top:14px;"></div>
     </div>
 
@@ -1539,6 +1578,205 @@
 </div>
 
 <script>
+// ══════════════════════════════════════════════════════════════════
+// I18N (English / Arabic with RTL support)
+// ══════════════════════════════════════════════════════════════════
+const TRANSLATIONS = {
+  en: {
+    // Navigation
+    nav_amenities: 'Amenities', nav_dining: 'Dining', nav_gallery: 'Gallery',
+    nav_details: 'Details', nav_room: 'Room', nav_services: 'Services',
+    nav_confirm: 'Confirm', nav_signout: 'Sign Out',
+    // Hero / homepage
+    cta_book_now: 'Book Now', cta_reserve: 'Reserve Your Stay', cta_reserve_now: 'Reserve Now',
+    tagline_luxury: 'Where every detail is a luxury',
+    admin_access: 'Admin Access',
+    // Admin login
+    admin_portal: 'Administration Portal',
+    admin_secure: 'Secure Portal',
+    admin_username: 'Username', admin_password: 'Password',
+    admin_access_btn: 'Access Portal', admin_hint: 'Credentials are set on the server',
+    // Registration
+    reg_guest: 'Guest Registration', reg_your_details: 'Your Details', reg_step1: 'Step 1 of 4',
+    reg_full_name: 'Full Name', reg_full_name_ph: 'Enter your full name',
+    reg_email: 'Email Address', reg_email_hint: '(confirmation will be sent here)', reg_email_ph: 'your@email.com',
+    reg_nid: 'National ID', reg_nid_ph: 'National ID number',
+    reg_phone: 'Phone Number', reg_phone_ph: '+20 xxx xxx xxxx',
+    reg_persons: 'Number of Guests', reg_stay: 'Stay Length',
+    reg_checkin: 'Check-In Date', reg_checkout: 'Check-Out Date',
+    guest_1: '1 Guest', guest_2: '2 Guests', guest_3: '3 Guests', guest_4: '4 Guests',
+    // OTP
+    otp_verify_heading: 'Email Verification', otp_secure: 'Secure Step',
+    otp_verify_title: 'Verify Your Email', otp_verify_sub: 'Step Secure',
+    otp_sent_to: "We've sent a 6-digit verification code to",
+    otp_enter_code: 'Enter Verification Code', otp_sending: 'Sending code…',
+    otp_verify_btn: 'Verify & Continue →', otp_resend: 'Resend code', otp_resent: 'New code sent!',
+    // Room
+    room_selection: 'Room Selection', room_choose: 'Choose Your Room', room_step2: 'Step 2 of 4',
+    room_type_label: 'Room Type', room_view_label: 'Select Your View',
+    room_double: 'Double Room',
+    room_double_desc: 'Elegant double bed, perfect for couples or solo travelers',
+    room_suite: 'Suite',
+    room_suite_desc: 'Spacious luxury suite with premium amenities and panoramic views',
+    from_price_double: 'From $250/night', from_price_suite: 'From $550/night',
+    view_pool: 'Pool & Garden',
+    view_pool_desc: 'Serene garden views overlooking the resort pool',
+    view_roof: 'Roof & Garden',
+    view_roof_desc: 'Breathtaking rooftop panorama with lush garden surroundings',
+    fee_pool: '+$80 fee', fee_roof: '+$100 fee',
+    room_cost: 'Estimated Room Cost',
+    // Services
+    svc_heading: 'Additional Services', svc_enhance: 'Enhance Your Stay', svc_step3: 'Step 3 of 4',
+    // Confirm
+    confirm_title: 'Booking Confirmation', confirm_review: 'Review Your Booking', confirm_step4: 'Step 4 of 4',
+    confirm_btn: 'Confirm Booking', confirm_revise: '← Revise',
+    grand_total: 'Grand Total', pending_confirm: 'Pending Confirmation',
+    // Success
+    success_heading: 'Reservation Confirmed',
+    success_sub: 'Your booking has been saved',
+    success_ref: 'Reference Code',
+    success_check: 'Check-in from 2:00 PM — Check-out by 12:00 PM',
+    success_done: 'Done', success_feedback: 'Share Feedback',
+    // Summary keys (used by JS)
+    sum_guest: 'Guest Name', sum_nid: 'National ID', sum_phone: 'Phone', sum_guests: 'Guests',
+    sum_checkin: 'Check-In', sum_checkout: 'Check-Out', sum_nights: 'Nights',
+    sum_room: 'Room Type', sum_view: 'Room View', sum_charges: 'Charges',
+    sum_room_charges: 'Room charges', sum_services_total: 'Services Total',
+    // Buttons / common
+    btn_continue: 'Continue →', btn_back: '← Back',
+    // Dates banner
+    avail_checking: 'Checking availability for', avail_nights: 'nights', avail_night: 'night',
+    // Cancel page
+    manage_heading: 'Manage Reservation', your_res: 'Your Reservation',
+    status_confirmed: 'Confirmed', status_cancelled: 'Cancelled',
+    ref_label: 'Reference', cancel_btn: 'Cancel My Reservation',
+    back_home: '← Back to Hotel', already_cancelled: 'This reservation has already been cancelled.',
+    cancel_success: 'Your reservation has been cancelled. A confirmation has been emailed to you.',
+    // Generic errors (used by alerts — short, friendly)
+    err_fill_fields: 'Please fill in all required fields.',
+    err_need_email: 'Email address is required to verify your identity.',
+    err_invalid_email: 'Please enter a valid email address.',
+    err_need_dates: 'Please select your check-in and check-out dates.',
+    err_min_night: 'Check-out must be at least one day after check-in.',
+    err_max_nights: 'Online bookings are limited to 30 nights.',
+    err_past_date: 'Check-in date cannot be in the past.',
+    err_pick_room: 'Please select a room type and view.',
+    lang_toggle: 'العربية'
+  },
+  ar: {
+    nav_amenities: 'المرافق', nav_dining: 'المطاعم', nav_gallery: 'المعرض',
+    nav_details: 'البيانات', nav_room: 'الغرفة', nav_services: 'الخدمات',
+    nav_confirm: 'التأكيد', nav_signout: 'تسجيل الخروج',
+    cta_book_now: 'احجز الآن', cta_reserve: 'احجز إقامتك', cta_reserve_now: 'احجز الآن',
+    tagline_luxury: 'حيث كل تفصيل رفاهية',
+    admin_access: 'الدخول للإدارة',
+    admin_portal: 'بوابة الإدارة', admin_secure: 'بوابة آمنة',
+    admin_username: 'اسم المستخدم', admin_password: 'كلمة المرور',
+    admin_access_btn: 'دخول البوابة', admin_hint: 'بيانات الدخول محفوظة على الخادم',
+    reg_guest: 'تسجيل الضيف', reg_your_details: 'بياناتك', reg_step1: 'الخطوة ١ من ٤',
+    reg_full_name: 'الاسم الكامل', reg_full_name_ph: 'أدخل اسمك الكامل',
+    reg_email: 'البريد الإلكتروني', reg_email_hint: '(سيُرسل التأكيد إلى هذا البريد)', reg_email_ph: 'your@email.com',
+    reg_nid: 'الرقم القومي', reg_nid_ph: 'رقم الهوية',
+    reg_phone: 'رقم الهاتف', reg_phone_ph: '+٢٠ xxx xxx xxxx',
+    reg_persons: 'عدد الضيوف', reg_stay: 'مدة الإقامة',
+    reg_checkin: 'تاريخ الوصول', reg_checkout: 'تاريخ المغادرة',
+    guest_1: 'ضيف واحد', guest_2: 'ضيفان', guest_3: '٣ ضيوف', guest_4: '٤ ضيوف',
+    otp_verify_heading: 'التحقق من البريد', otp_secure: 'خطوة آمنة',
+    otp_verify_title: 'تحقق من بريدك', otp_verify_sub: 'خطوة آمنة',
+    otp_sent_to: 'أرسلنا رمز تحقق مكون من ٦ أرقام إلى',
+    otp_enter_code: 'أدخل رمز التحقق', otp_sending: 'جارٍ إرسال الرمز…',
+    otp_verify_btn: 'تحقق وتابع ←', otp_resend: 'إعادة إرسال الرمز', otp_resent: 'تم إرسال رمز جديد!',
+    room_selection: 'اختيار الغرفة', room_choose: 'اختر غرفتك', room_step2: 'الخطوة ٢ من ٤',
+    room_type_label: 'نوع الغرفة', room_view_label: 'اختر الإطلالة',
+    room_double: 'غرفة مزدوجة',
+    room_double_desc: 'سرير مزدوج أنيق، مثالي للأزواج أو المسافرين المنفردين',
+    room_suite: 'جناح',
+    room_suite_desc: 'جناح فاخر وواسع مع وسائل راحة متميزة وإطلالات بانورامية',
+    from_price_double: 'يبدأ من ٢٥٠$/ليلة', from_price_suite: 'يبدأ من ٥٥٠$/ليلة',
+    view_pool: 'المسبح والحديقة',
+    view_pool_desc: 'إطلالة هادئة على حديقة المنتجع والمسبح',
+    view_roof: 'السطح والحديقة',
+    view_roof_desc: 'بانوراما خلابة من السطح محاطة بالحدائق الخضراء',
+    fee_pool: '+رسوم ٨٠$', fee_roof: '+رسوم ١٠٠$',
+    room_cost: 'التكلفة التقديرية للغرفة',
+    svc_heading: 'خدمات إضافية', svc_enhance: 'ارتقِ بإقامتك', svc_step3: 'الخطوة ٣ من ٤',
+    confirm_title: 'تأكيد الحجز', confirm_review: 'راجع حجزك', confirm_step4: 'الخطوة ٤ من ٤',
+    confirm_btn: 'تأكيد الحجز', confirm_revise: '→ تعديل',
+    grand_total: 'الإجمالي الكلي', pending_confirm: 'في انتظار التأكيد',
+    success_heading: 'تم تأكيد الحجز',
+    success_sub: 'تم حفظ حجزك',
+    success_ref: 'رمز الحجز',
+    success_check: 'الوصول من الساعة ٢ ظهرًا — المغادرة حتى ١٢ ظهرًا',
+    success_done: 'تم', success_feedback: 'أرسل تقييمك',
+    sum_guest: 'اسم الضيف', sum_nid: 'الرقم القومي', sum_phone: 'الهاتف', sum_guests: 'الضيوف',
+    sum_checkin: 'الوصول', sum_checkout: 'المغادرة', sum_nights: 'الليالي',
+    sum_room: 'نوع الغرفة', sum_view: 'الإطلالة', sum_charges: 'الرسوم',
+    sum_room_charges: 'رسوم الغرفة', sum_services_total: 'إجمالي الخدمات',
+    btn_continue: 'متابعة ←', btn_back: '→ رجوع',
+    avail_checking: 'جارٍ التحقق من التوفر من', avail_nights: 'ليالٍ', avail_night: 'ليلة',
+    manage_heading: 'إدارة الحجز', your_res: 'حجزك',
+    status_confirmed: 'مؤكد', status_cancelled: 'ملغى',
+    ref_label: 'الرمز', cancel_btn: 'إلغاء حجزي',
+    back_home: '→ العودة إلى الفندق', already_cancelled: 'هذا الحجز ملغى بالفعل.',
+    cancel_success: 'تم إلغاء حجزك. تم إرسال تأكيد إلى بريدك الإلكتروني.',
+    err_fill_fields: 'يرجى ملء جميع الحقول المطلوبة.',
+    err_need_email: 'البريد الإلكتروني مطلوب للتحقق من هويتك.',
+    err_invalid_email: 'يرجى إدخال بريد إلكتروني صحيح.',
+    err_need_dates: 'يرجى اختيار تاريخ الوصول والمغادرة.',
+    err_min_night: 'يجب أن تكون المغادرة بعد الوصول بيوم على الأقل.',
+    err_max_nights: 'الحجوزات عبر الإنترنت محدودة بـ ٣٠ ليلة.',
+    err_past_date: 'لا يمكن أن يكون تاريخ الوصول في الماضي.',
+    err_pick_room: 'يرجى اختيار نوع الغرفة والإطلالة.',
+    lang_toggle: 'English'
+  }
+};
+let currentLang = (localStorage.getItem('helton_lang') === 'ar') ? 'ar' : 'en';
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) ||
+         TRANSLATIONS.en[key] || key;
+}
+function applyLang() {
+  document.documentElement.lang = currentLang;
+  document.documentElement.dir  = currentLang === 'ar' ? 'rtl' : 'ltr';
+  document.body.classList.toggle('rtl-active', currentLang === 'ar');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    el.textContent = t(k);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    el.innerHTML = t(el.getAttribute('data-i18n-html'));
+  });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = t('lang_toggle');
+  // Re-render any dynamic UI that's currently on-screen
+  try {
+    // Refresh top-nav labels if visible
+    const activeScreen = document.querySelector('.screen.active');
+    if (activeScreen && typeof updateNav === 'function') updateNav(activeScreen.id);
+    // Refresh confirm-page contents if currently shown
+    if (typeof state !== 'undefined' && state.guest && state.guest.name &&
+        document.getElementById('screen-confirm')?.classList.contains('active')) {
+      buildConfirmPage();
+    }
+    // Refresh availability banner
+    if (typeof loadRoomAvailability === 'function' &&
+        document.getElementById('screen-room')?.classList.contains('active') &&
+        state && state.guest && state.guest.checkin) {
+      loadRoomAvailability();
+    }
+  } catch (e) { /* ignore — i18n runs before state init on first load */ }
+}
+function toggleLang() {
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  localStorage.setItem('helton_lang', currentLang);
+  applyLang();
+}
+document.addEventListener('DOMContentLoaded', applyLang);
+
 // ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
@@ -1600,14 +1838,14 @@ function updateNav(id) {
   if(guestScreens.includes(id)) {
     nav.classList.add('show');
     links.innerHTML = `
-      <span class="nav-link" onclick="showScreen('screen-register')">Details</span>
-      <span class="nav-link" onclick="showScreen('screen-room')">Room</span>
-      <span class="nav-link" onclick="showScreen('screen-services')">Services</span>
-      <span class="nav-link" onclick="showScreen('screen-confirm')">Confirm</span>
+      <span class="nav-link" onclick="showScreen('screen-register')">${t('nav_details')}</span>
+      <span class="nav-link" onclick="showScreen('screen-room')">${t('nav_room')}</span>
+      <span class="nav-link" onclick="showScreen('screen-services')">${t('nav_services')}</span>
+      <span class="nav-link" onclick="showScreen('screen-confirm')">${t('nav_confirm')}</span>
     `;
   } else if(adminScreens.includes(id)) {
     nav.classList.add('show');
-    links.innerHTML = `<span class="nav-link" onclick="doLogout()">Sign Out</span>`;
+    links.innerHTML = `<span class="nav-link" onclick="doLogout()">${t('nav_signout')}</span>`;
   } else {
     nav.classList.remove('show');
   }
@@ -1785,15 +2023,15 @@ function nextStep(from, to) {
     const phone    = document.getElementById('g-phone').value.trim();
     const checkin  = document.getElementById('g-checkin').value;
     const checkout = document.getElementById('g-checkout').value;
-    if(!name||!nid||!phone) { alert('Please fill in all required fields.'); return; }
-    if(!email) { alert('Email address is required to verify your identity.'); return; }
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email address.'); return; }
-    if(!checkin || !checkout) { alert('Please select your check-in and check-out dates.'); return; }
+    if(!name||!nid||!phone) { alert(t('err_fill_fields')); return; }
+    if(!email) { alert(t('err_need_email')); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert(t('err_invalid_email')); return; }
+    if(!checkin || !checkout) { alert(t('err_need_dates')); return; }
     const nights = Math.round((Date.parse(checkout) - Date.parse(checkin)) / 86400000);
-    if(nights < 1)  { alert('Check-out must be at least one day after check-in.'); return; }
-    if(nights > 30) { alert('Online bookings are limited to 30 nights. Please contact us for longer stays.'); return; }
+    if(nights < 1)  { alert(t('err_min_night')); return; }
+    if(nights > 30) { alert(t('err_max_nights')); return; }
     const today = new Date(); today.setHours(0,0,0,0);
-    if(Date.parse(checkin) < today.getTime()) { alert('Check-in date cannot be in the past.'); return; }
+    if(Date.parse(checkin) < today.getTime()) { alert(t('err_past_date')); return; }
     state.guest = {
       name, email, nid, phone,
       persons: parseInt(document.getElementById('g-persons').value)||1,
@@ -1811,7 +2049,7 @@ function nextStep(from, to) {
     return;
   }
   if(from === 'room') {
-    if(!state.room.type||!state.room.view) { alert('Please select a room type and view.'); return; }
+    if(!state.room.type||!state.room.view) { alert(t('err_pick_room')); return; }
     if(!checkSelectedAvailability()) return; // Blocks here, before OTP, with clear message
     showScreen('screen-services');
     return;
@@ -1989,7 +2227,8 @@ async function loadRoomAvailability() {
   // Show selected dates in the banner
   const banner = document.getElementById('room-dates-banner');
   if(banner && state.guest.checkin && state.guest.checkout) {
-    banner.textContent = `Checking availability for ${state.guest.checkin} → ${state.guest.checkout} · ${state.guest.nights} night${state.guest.nights===1?'':'s'}`;
+    const unit = state.guest.nights === 1 ? t('avail_night') : t('avail_nights');
+    banner.textContent = `${t('avail_checking')} ${state.guest.checkin} → ${state.guest.checkout} · ${state.guest.nights} ${unit}`;
   }
   document.getElementById('room-avail-error').classList.remove('show');
   availabilityMatrix = null;
@@ -2232,27 +2471,27 @@ function updateServiceTotal() {
 function buildConfirmPage() {
   const g = state.guest;
   const nights = g.nights||1;
-  const rType  = ['','Double Room','Suite'][state.room.type]||'—';
-  const rView  = ['','Pool & Garden','Roof & Garden'][state.room.view]||'—';
+  const rType  = ['', t('room_double'), t('room_suite')][state.room.type] || '—';
+  const rView  = ['', t('view_pool'),   t('view_roof') ][state.room.view] || '—';
   const roomCost = (ROOM_PRICES.type[state.room.type]||0)*nights + (ROOM_PRICES.setup[state.room.type]||0) + (ROOM_PRICES.view[state.room.view]||0);
   const svcCost  = Object.values(servicesCost).reduce((a,b)=>a+b,0);
   const grand    = roomCost + svcCost;
 
   document.getElementById('summary-data').innerHTML = `
-    <div class="summary-item"><span class="summary-key">Guest Name</span><span class="summary-val">${g.name}</span></div>
-    <div class="summary-item"><span class="summary-key">National ID</span><span class="summary-val">${g.nid}</span></div>
-    <div class="summary-item"><span class="summary-key">Phone</span><span class="summary-val">${g.phone}</span></div>
-    <div class="summary-item"><span class="summary-key">Guests</span><span class="summary-val">${g.persons}</span></div>
-    <div class="summary-item"><span class="summary-key">Check-In</span><span class="summary-val">${g.checkin || '—'}</span></div>
-    <div class="summary-item"><span class="summary-key">Check-Out</span><span class="summary-val">${g.checkout || '—'}</span></div>
-    <div class="summary-item"><span class="summary-key">Nights</span><span class="summary-val">${nights}</span></div>
-    <div class="summary-item"><span class="summary-key">Room Type</span><span class="summary-val">${rType}</span></div>
-    <div class="summary-item"><span class="summary-key">Room View</span><span class="summary-val">${rView}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_guest')}</span><span class="summary-val">${g.name}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_nid')}</span><span class="summary-val">${g.nid}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_phone')}</span><span class="summary-val">${g.phone}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_guests')}</span><span class="summary-val">${g.persons}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_checkin')}</span><span class="summary-val">${g.checkin || '—'}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_checkout')}</span><span class="summary-val">${g.checkout || '—'}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_nights')}</span><span class="summary-val">${nights}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_room')}</span><span class="summary-val">${rType}</span></div>
+    <div class="summary-item"><span class="summary-key">${t('sum_view')}</span><span class="summary-val">${rView}</span></div>
   `;
   document.getElementById('summary-charges').innerHTML = `
-    <div class="price-line"><span>Room charges</span><span>$${roomCost}</span></div>
+    <div class="price-line"><span>${t('sum_room_charges')}</span><span>$${roomCost}</span></div>
     ${Object.entries(servicesCost).map(([k,v])=>`<div class="price-line"><span>${k.replace(/_/g,' ')}</span><span>$${v}</span></div>`).join('')}
-    <div class="price-line total"><span>Grand Total</span><span>$${grand}</span></div>
+    <div class="price-line total"><span>${t('grand_total')}</span><span>$${grand}</span></div>
   `;
   document.getElementById('grand-total').textContent = `$${grand}`;
 }
