@@ -642,12 +642,10 @@
     .price-amount { font-size: 1.9rem; }
   }
 
-  /* ── LANGUAGE SWITCH (tiny EN / AR pills, snug top-right corner) ── */
+  /* ── LANGUAGE SWITCH (tiny EN / AR pills, sits under Book Now in nav) ── */
   .lang-switch {
-    position: fixed; top: 8px; right: 8px; z-index: 300;
     display: inline-flex; gap: 2px;
-    background: rgba(13,13,13,0.85);
-    backdrop-filter: blur(8px);
+    background: rgba(13,13,13,0.6);
     border: 1px solid var(--border);
     border-radius: 2px;
     padding: 2px;
@@ -764,17 +762,13 @@
   #screen-welcome { min-height: auto; }
   @media(max-width:768px) {
     #homeNav { padding:14px 20px!important; }
-    #homeNav a, #homeNav button:not(:last-child) { display:none; }
+    #homeNav a, #homeNav > div > button:not(:last-child) { display:none; }
+    /* Keep the language pills visible on mobile */
+    #homeNav .lang-switch, #homeNav .lang-switch button { display:inline-flex; }
   }
 </style>
 </head>
 <body>
-
-<!-- LANGUAGE SWITCH (always visible) -->
-<div class="lang-switch" id="lang-switch">
-  <button id="lang-en" onclick="setLang('en')">EN</button>
-  <button id="lang-ar" onclick="setLang('ar')">AR</button>
-</div>
 
 <!-- TOP NAV -->
 <nav class="top-nav" id="topNav">
@@ -795,7 +789,13 @@
       <a href="#gallery" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Gallery</a>
       <a href="#dining" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Dining</a>
       <button onclick="showScreen('screen-login')" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Admin</button>
-      <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
+        <div class="lang-switch" id="lang-switch">
+          <button id="lang-en" onclick="setLang('en')">EN</button>
+          <button id="lang-ar" onclick="setLang('ar')">AR</button>
+        </div>
+      </div>
     </div>
   </nav>
 
