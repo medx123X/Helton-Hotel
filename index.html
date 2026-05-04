@@ -762,9 +762,7 @@
   #screen-welcome { min-height: auto; }
   @media(max-width:768px) {
     #homeNav { padding:14px 20px!important; }
-    #homeNav a, #homeNav > div > button:not(:last-child) { display:none; }
-    /* Keep the language pills visible on mobile */
-    #homeNav .lang-switch, #homeNav .lang-switch button { display:inline-flex; }
+    #homeNav a, #homeNav button:not(:last-child) { display:none; }
   }
 </style>
 </head>
@@ -789,13 +787,7 @@
       <a href="#gallery" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Gallery</a>
       <a href="#dining" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Dining</a>
       <button onclick="showScreen('screen-login')" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Admin</button>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-        <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
-        <div class="lang-switch" id="lang-switch">
-          <button id="lang-en" onclick="setLang('en')">EN</button>
-          <button id="lang-ar" onclick="setLang('ar')">AR</button>
-        </div>
-      </div>
+      <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
     </div>
   </nav>
 
@@ -1042,7 +1034,11 @@
   <footer style="background:var(--dark2);border-top:1px solid var(--border);padding:40px 48px;text-align:center;">
     <p style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--gold);letter-spacing:0.2em;margin-bottom:8px;"> HELTON HOTEL </p>
     <p style="font-size:0.65rem;letter-spacing:0.2em;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px;">Where every detail is a luxury</p>
-    <p style="font-size:0.68rem;color:#3a3530;">© 2025 Helton Hotel. All rights reserved.</p>
+    <p style="font-size:0.68rem;color:#3a3530;margin-bottom:18px;">© 2025 Helton Hotel. All rights reserved.</p>
+    <div class="lang-switch" id="lang-switch" style="margin:0 auto;">
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+      <button id="lang-ar" onclick="setLang('ar')">AR</button>
+    </div>
   </footer>
 
 </div>
