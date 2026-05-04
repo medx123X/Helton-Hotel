@@ -91,29 +91,21 @@
     .card{padding:26px 20px}
     .title{font-size:2rem;letter-spacing:0.1em}
   }
-  /* ── Language switch ── */
+  /* ── Language switch (tiny pills, snug top-right) ── */
   .lang-switch {
-    position: fixed; top: 12px; right: 12px; z-index: 300;
-    display: inline-flex; gap: 4px;
+    position: fixed; top: 8px; right: 8px; z-index: 300;
+    display: inline-flex; gap: 2px;
     background: rgba(13,13,13,0.85); backdrop-filter: blur(8px);
-    border: 1px solid var(--border); border-radius: 2px; padding: 3px;
+    border: 1px solid var(--border); border-radius: 2px; padding: 2px;
   }
   .lang-switch button {
     background: transparent; border: none; color: var(--text-muted);
-    font-family: 'Montserrat', sans-serif; font-size: 0.6rem; font-weight: 500;
-    letter-spacing: 0.15em; padding: 5px 9px; border-radius: 2px;
-    cursor: pointer; transition: all 0.15s; min-width: 28px;
+    font-family: 'Montserrat', sans-serif; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.12em; padding: 3px 7px; border-radius: 2px;
+    cursor: pointer; transition: all 0.15s; min-width: 22px; line-height: 1;
   }
   .lang-switch button:hover { color: var(--gold); }
   .lang-switch button.active { background: var(--gold); color: var(--dark); }
-  body.rtl-active .lang-switch { right: auto; left: 12px; }
-  body.rtl-active { text-align: right; }
-  body.rtl-active .title, body.rtl-active .tagline,
-  body.rtl-active .section-title, body.rtl-active .section-subtitle,
-  body.rtl-active .stars, body.rtl-active .header { text-align: center; }
-  body.rtl-active .row { flex-direction: row-reverse; }
-  body.rtl-active .row .key { text-align: right; }
-  body.rtl-active .row .val { text-align: left; }
 </style>
 </head>
 <body>
@@ -203,8 +195,8 @@ let currentLang = localStorage.getItem('helton_lang') === 'ar' ? 'ar' : 'en';
 function t(k){ return (TRANSLATIONS[currentLang]&&TRANSLATIONS[currentLang][k]) || TRANSLATIONS.en[k] || k; }
 function applyLang() {
   document.documentElement.lang = currentLang;
-  document.documentElement.dir  = currentLang === 'ar' ? 'rtl' : 'ltr';
-  document.body.classList.toggle('rtl-active', currentLang === 'ar');
+  document.documentElement.dir  = 'ltr';
+  document.body.classList.remove('rtl-active');
   document.querySelectorAll('[data-i18n]').forEach(el => el.textContent = t(el.getAttribute('data-i18n')));
   document.getElementById('lang-en')?.classList.toggle('active', currentLang === 'en');
   document.getElementById('lang-ar')?.classList.toggle('active', currentLang === 'ar');
