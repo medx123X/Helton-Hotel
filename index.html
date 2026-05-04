@@ -588,6 +588,75 @@
     .btn-group { flex-direction: column; }
   }
 
+  /* ── RESPONSIVE (narrow phones, <= 480px) ── */
+  @media(max-width:480px) {
+    .container { padding: 28px 16px 60px; }
+    .card { padding: 22px 18px; }
+    .hotel-header { padding: 44px 16px 24px; }
+    .section-title { font-size: 1.45rem; }
+    .section-subtitle { font-size: 0.65rem; margin-bottom: 28px; }
+
+    /* Buttons: allow them to shrink & not blow out their container */
+    .btn { padding: 13px 22px; font-size: 0.68rem; letter-spacing: 0.18em; }
+    .btn-group { flex-direction: column; gap: 10px; }
+    .btn-group .btn { width: 100%; }
+
+    /* OTP digit grid: make inputs flex so 6 always fit in one row */
+    .otp-digit {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: 48px !important;
+      height: 52px !important;
+      font-size: 1.15rem !important;
+      flex: 1 1 0 !important;
+    }
+
+    /* Admin tables: allow horizontal scroll inside the card */
+    .data-table { min-width: 640px; }
+
+    /* Top nav on narrow phones: tighter padding so logo + links fit */
+    .top-nav { padding: 10px 14px; }
+    .nav-logo { font-size: 1.05rem; letter-spacing: 0.1em; }
+    .nav-link { padding: 4px 8px; font-size: 0.58rem; letter-spacing: 0.14em; }
+
+    /* Welcome-page sections: 48px side padding is too much at 360px */
+    #screen-welcome section,
+    #screen-welcome > nav,
+    #screen-welcome > footer { padding-left: 18px !important; padding-right: 18px !important; }
+    #screen-welcome section > div[style*="padding:0 48px"] { padding: 0 !important; }
+
+    /* Hero CTA: shrink vertical padding and tighten the title */
+    #screen-welcome section[style*="height:100vh"] { height: 90vh !important; }
+
+    /* Homepage hero title / tagline: stop them smashing into the edges */
+    #screen-welcome h1 { letter-spacing: 0.14em !important; }
+
+    /* Choice grid: ensure cards have breathing room */
+    .choice-grid { grid-template-columns: 1fr; gap: 12px; }
+    .choice-btn { padding: 18px 16px; }
+
+    /* Summary/receipt items shouldn't let long values overflow */
+    .summary-item { flex-wrap: wrap; gap: 4px; }
+
+    /* Price box: smaller heading so numbers don't clip */
+    .price-amount { font-size: 1.9rem; }
+  }
+
+  /* ── RESPONSIVE (ultra-narrow, <= 360px — older/small phones) ── */
+  @media(max-width:360px) {
+    .container { padding: 24px 12px 48px; }
+    .card { padding: 18px 14px; }
+    .otp-digit { max-width: 42px !important; height: 48px !important; font-size: 1.05rem !important; }
+    .section-title { font-size: 1.3rem; }
+    .hotel-name { font-size: 2rem; letter-spacing: 0.08em; }
+  }
+
+  /* Shrink the big 'HELTON HOTEL' header so it never overflows 360px */
+  @media(max-width:480px) {
+    .hotel-name { font-size: 2.1rem; letter-spacing: 0.1em; }
+    .hotel-tagline { font-size: 0.6rem; letter-spacing: 0.25em; }
+  }
+
   /* ── EMAILJS SETUP BANNER ── */
   .setup-banner {
     background: linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.05));
@@ -1019,7 +1088,7 @@
         <button class="btn btn-outline" onclick="filterStaff('Maintenance')">Maintenance</button>
         <button class="btn btn-outline" onclick="filterStaff('Chef')">Kitchen</button>
       </div>
-      <div class="card" style="padding:0;overflow:hidden;">
+      <div class="card" style="padding:0;overflow-x:auto;">
         <table class="data-table" id="staffTable">
           <thead>
             <tr>
