@@ -768,10 +768,14 @@
 </head>
 <body>
 
-<!-- TOP NAV -->
+<!-- TOP NAV (shown on the booking flow + admin screens) -->
 <nav class="top-nav" id="topNav">
   <div class="nav-logo"> Helton</div>
   <div class="nav-links" id="navLinks"></div>
+  <div class="lang-switch" id="lang-switch-nav">
+    <button id="lang-en-nav" onclick="setLang('en')">EN</button>
+    <button id="lang-ar-nav" onclick="setLang('ar')">AR</button>
+  </div>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -1738,8 +1742,9 @@ function applyLang() {
   document.querySelectorAll('[data-i18n-html]').forEach(el => {
     el.innerHTML = t(el.getAttribute('data-i18n-html'));
   });
-  document.getElementById('lang-en')?.classList.toggle('active', currentLang === 'en');
-  document.getElementById('lang-ar')?.classList.toggle('active', currentLang === 'ar');
+  // Sync active state on both lang switches (homepage footer + booking nav).
+  ['lang-en','lang-en-nav'].forEach(id => document.getElementById(id)?.classList.toggle('active', currentLang === 'en'));
+  ['lang-ar','lang-ar-nav'].forEach(id => document.getElementById(id)?.classList.toggle('active', currentLang === 'ar'));
   // Re-render any dynamic UI that's currently on-screen
   try {
     // Refresh top-nav labels if visible
