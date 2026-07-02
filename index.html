@@ -790,6 +790,8 @@
       <a href="#amenities" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Amenities</a>
       <a href="#gallery" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Gallery</a>
       <a href="#dining" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Dining</a>
+      <a href="predict.html" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Risk AI</a>
+      <a href="analytics.html" style="font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Analytics</a>
       <button onclick="showScreen('screen-login')" style="font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-muted);background:none;border:none;cursor:pointer;transition:color 0.2s;" onmouseover="this.style.color='#C9A84C'" onmouseout="this.style.color='#8A7F6E'">Admin</button>
       <button onclick="showScreen('screen-register')" class="btn btn-primary" style="padding:10px 24px;" data-i18n="cta_book_now">Book Now</button>
     </div>
@@ -1843,7 +1845,7 @@ function updateNav(id) {
     `;
   } else if(adminScreens.includes(id)) {
     nav.classList.add('show');
-    links.innerHTML = `<span class="nav-link" onclick="doLogout()">${t('nav_signout')}</span>`;
+    links.innerHTML = `<span class="nav-link" onclick="doLogout()">${t('nav_signout')}</span><a class="nav-link" href="predict.html" style="text-decoration:none;">Risk AI</a><a class="nav-link" href="analytics.html" style="text-decoration:none;">Analytics</a>`;
   } else {
     nav.classList.remove('show');
   }
