@@ -1843,7 +1843,7 @@ function updateNav(id) {
     `;
   } else if(adminScreens.includes(id)) {
     nav.classList.add('show');
-    links.innerHTML = `<span class="nav-link" onclick="doLogout()">${t('nav_signout')}</span><a class="nav-link" href="predict.html" style="text-decoration:none;">Risk AI</a><a class="nav-link" href="analytics.html" style="text-decoration:none;">Analytics</a>`;
+    links.innerHTML = `<span class="nav-link" onclick="doLogout()">${t('nav_signout')}</span><a class="nav-link" href="predict.html" style="text-decoration:none;color:#C9A84C;border-color:rgba(201,168,76,0.4);">⚡ Risk AI</a><a class="nav-link" href="analytics.html" style="text-decoration:none;color:#C9A84C;border-color:rgba(201,168,76,0.4);">📊 Analytics</a>`;
   } else {
     nav.classList.remove('show');
   }
