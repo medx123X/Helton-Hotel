@@ -378,8 +378,8 @@ Expected response:
 
 **On the live site:**
 1. Go to your Vercel URL
-2. Log in as admin -----------------> Username / med
-                   -----------------> password/ password  
+2. Log in as admin -----------------> [Username / med]
+                   -----------------> [password/ password]  
 3. Click **⚡ Risk AI** in the nav
 4. Fill in a booking and click **Assess Cancellation Risk**
 
