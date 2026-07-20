@@ -244,8 +244,8 @@ Make sure you have the following installed:
 ### Step 1 — Clone the Repository
 
 ```bash
-git clone https://github.com/medx123X/Helton-Hotel2.git
-cd Helton-Hotel2
+git clone https://github.com/medx123X/Helton-Hotel.git
+cd Helton-Hotel
 ```
 
 ---
