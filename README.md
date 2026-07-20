@@ -17,8 +17,22 @@ Where every detail is a luxury — including the data.
 <img width="1917" height="1090" alt="image" src="https://github.com/user-attachments/assets/9c596d3b-8fcb-45d7-b29e-62b2a32e5fd7" />
 <img width="1917" height="1091" alt="image" src="https://github.com/user-attachments/assets/1e3383bd-e5af-448e-80d4-5a7d7100cb3d" />
 <img width="1917" height="1091" alt="image" src="https://github.com/user-attachments/assets/fc037caa-693c-4fa7-83ce-61fa6eead90f" />
-<img width="1917" height="1090" alt="image" src="https://github.com/user-attachments/assets/9ff7a6e7-8d92-4538-b148-120f5351af55" />
-<img width="1917" height="1090" alt="image" src="https://github.com/user-attachments/assets/28b8e7cd-a18d-4368-84fa-8fbd97a0b5b3" />
+
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/00d5c9e2-c173-44e2-9885-4e4f124b635e" />
+
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/6b65b2f2-5dc7-4229-959f-b61cf2f886a4" />
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/3c842d5d-fdac-48ad-b288-770b0f827f22" />
+
+
+
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/c4c8c412-4066-49b2-98a6-8e1d7cfbdc6a" />
+<img width="1917" height="1090" alt="image" src="https://github.com/user-attachments/assets/59169ea0-34b8-4a55-b913-c2931f9d3fe9" />
+
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/141bda21-1e28-480d-afb8-bb864c4d2f80" />
+<img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/ec3572d4-20a1-47e1-af1d-ea2a5a561602" />
+
+
+
 <img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/b5cd251f-73e7-43aa-8fec-23cd994bfe92" />
 <img width="1912" height="1091" alt="image" src="https://github.com/user-attachments/assets/ee03eff1-b025-4e70-addb-db778be9de3b" />
 <img width="1917" height="1087" alt="image" src="https://github.com/user-attachments/assets/7bb7d15a-af5d-45a2-b9e0-0b22debe2981" />
