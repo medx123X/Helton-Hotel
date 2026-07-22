@@ -220,7 +220,7 @@ Helton-Hotel/
 ## 👤 Author
 
 **medx123X**
-Built with 🖤 and a lot of PowerShell debugging
+
 
 ---
 
